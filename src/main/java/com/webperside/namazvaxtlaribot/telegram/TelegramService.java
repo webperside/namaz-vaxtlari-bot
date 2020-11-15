@@ -56,6 +56,8 @@ public class TelegramService {
             Date dateIsha = df.parse(dateDto.getIsha() + " " + key);
             Instant isha = dateIsha.toInstant();
 
+            System.out.println(current);
+
             if (current.isBefore(subh)) {
                 long minutes = Duration.between(current, subh).toMinutes();
                 if (minutes == 0) {
