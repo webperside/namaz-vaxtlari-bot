@@ -47,15 +47,15 @@ public class TelegramService {
             Instant current = Instant.now().plus(Duration.ofHours(4));
 
             Date dateSubh = df.parse(dateDto.getSubh() + " " + key);
-            Instant subh = dateSubh.toInstant().plus(Duration.ofHours(4));
+            Instant subh = dateSubh.toInstant();
             Date dateZohr = df.parse(dateDto.getZohr() + " " + key);
-            Instant zohr = dateZohr.toInstant().plus(Duration.ofHours(4));
+            Instant zohr = dateZohr.toInstant();
             Date dateEsr = df.parse(dateDto.getEsr() + " " + key);
-            Instant esr = dateEsr.toInstant().plus(Duration.ofHours(4));
+            Instant esr = dateEsr.toInstant();
             Date dateAxsham = df.parse(dateDto.getAxsham() + " " + key);
-            Instant axsham = dateAxsham.toInstant().plus(Duration.ofHours(4));
+            Instant axsham = dateAxsham.toInstant();
             Date dateIsha = df.parse(dateDto.getIsha() + " " + key);
-            Instant isha = dateIsha.toInstant().plus(Duration.ofHours(4));
+            Instant isha = dateIsha.toInstant();
 
             System.out.println(current);
             System.out.println(subh);
