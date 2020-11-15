@@ -13,6 +13,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,22 +43,26 @@ public class TelegramService {
         try {
             String msg = null;
             DateFormat df = new SimpleDateFormat("HH:mm dd.MM.yyyy");
-            df.setTimeZone(TimeZone.getTimeZone("Asia/Baku"));
 
-            Instant current = Instant.now();
+            Instant current = Instant.now().plus(Duration.ofHours(4));
 
             Date dateSubh = df.parse(dateDto.getSubh() + " " + key);
-            Instant subh = dateSubh.toInstant();
+            Instant subh = dateSubh.toInstant().plus(Duration.ofHours(4));
             Date dateZohr = df.parse(dateDto.getZohr() + " " + key);
-            Instant zohr = dateZohr.toInstant();
+            Instant zohr = dateZohr.toInstant().plus(Duration.ofHours(4));
             Date dateEsr = df.parse(dateDto.getEsr() + " " + key);
-            Instant esr = dateEsr.toInstant();
+            Instant esr = dateEsr.toInstant().plus(Duration.ofHours(4));
             Date dateAxsham = df.parse(dateDto.getAxsham() + " " + key);
-            Instant axsham = dateAxsham.toInstant();
+            Instant axsham = dateAxsham.toInstant().plus(Duration.ofHours(4));
             Date dateIsha = df.parse(dateDto.getIsha() + " " + key);
-            Instant isha = dateIsha.toInstant();
+            Instant isha = dateIsha.toInstant().plus(Duration.ofHours(4));
 
             System.out.println(current);
+            System.out.println(subh);
+            System.out.println(zohr);
+            System.out.println(esr);
+            System.out.println(axsham);
+            System.out.println(isha);
 
             if (current.isBefore(subh)) {
                 long minutes = Duration.between(current, subh).toMinutes();

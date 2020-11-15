@@ -28,6 +28,7 @@ public class APIService {
 
         try{
             if(response.getStatusCode().is2xxSuccessful()){
+                log.info("Successfully");
                 process(response.getBody());
             }
         } catch (JsonProcessingException ex){
