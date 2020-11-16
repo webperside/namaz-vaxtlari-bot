@@ -13,12 +13,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import static com.webperside.namazvaxtlaribot.config.Config.FILE_NAME;
 
@@ -57,43 +54,36 @@ public class TelegramService {
             Date dateIsha = df.parse(dateDto.getIsha() + " " + key);
             Instant isha = dateIsha.toInstant();
 
-            System.out.println(current);
-            System.out.println(subh);
-            System.out.println(zohr);
-            System.out.println(esr);
-            System.out.println(axsham);
-            System.out.println(isha);
-
             if (current.isBefore(subh)) {
-                long minutes = Duration.between(subh, current).toMinutes();
+                long minutes = Duration.between(current, subh).toMinutes();
                 if (minutes == 0) {
                     msg = "Sübh namazının vaxtıdır";
                 } else if (minutes < 20) {
                     msg = String.format("Sübh namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(zohr)){
-                long minutes = Duration.between(zohr, current).toMinutes();
+                long minutes = Duration.between(current, zohr).toMinutes();
                 if (minutes == 0) {
                     msg = "Zöhr namazının vaxtıdır";
                 } else if (minutes < 20) {
                     msg = String.format("Zöhr namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(esr)){
-                long minutes = Duration.between(esr, current).toMinutes();
+                long minutes = Duration.between(current, esr).toMinutes();
                 if (minutes == 0) {
                     msg = "Əsr namazının vaxtıdır";
                 } else if (minutes < 20) {
                     msg = String.format("Əsr namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(axsham)){
-                long minutes = Duration.between(axsham, current).toMinutes();
+                long minutes = Duration.between(current, axsham).toMinutes();
                 if (minutes == 0) {
                     msg = "Axşam namazının vaxtıdır";
                 } else if (minutes < 20) {
                     msg = String.format("Axşam namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(isha)){
-                long minutes = Duration.between(isha, current).toMinutes();
+                long minutes = Duration.between(current, isha).toMinutes();
                 if (minutes == 0) {
                     msg = "İşa namazının vaxtıdır";
                 } else if (minutes < 20) {
@@ -105,7 +95,7 @@ public class TelegramService {
                 sendBulkMessages(msg);
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
 
     }
