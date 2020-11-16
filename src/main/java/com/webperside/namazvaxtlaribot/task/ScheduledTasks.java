@@ -33,7 +33,7 @@ public class ScheduledTasks {
     }
 
 
-    @Scheduled(initialDelay = 60000,fixedDelay = 300000)
+    @Scheduled(initialDelay = 60000,fixedDelay = 60000)
     public void sendDate() {
         String key = SIMPLE_DATE_FORMAT.format(new Date());
         telegramService.sendDate(key, dates.get(key));

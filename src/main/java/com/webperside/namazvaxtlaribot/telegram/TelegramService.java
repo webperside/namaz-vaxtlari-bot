@@ -58,35 +58,35 @@ public class TelegramService {
                 long minutes = Duration.between(current, subh).toMinutes();
                 if (minutes == 0) {
                     msg = "Sübh namazının vaxtıdır";
-                } else if (minutes < 20) {
+                } else if (minutes <= 20 && minutes % 5 == 0) {
                     msg = String.format("Sübh namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(zohr)){
                 long minutes = Duration.between(current, zohr).toMinutes();
                 if (minutes == 0) {
                     msg = "Zöhr namazının vaxtıdır";
-                } else if (minutes < 20) {
+                } else if (minutes <= 20 && minutes % 5 == 0) {
                     msg = String.format("Zöhr namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(esr)){
                 long minutes = Duration.between(current, esr).toMinutes();
                 if (minutes == 0) {
                     msg = "Əsr namazının vaxtıdır";
-                } else if (minutes < 20) {
+                } else if (minutes <= 20 && minutes % 5 == 0) {
                     msg = String.format("Əsr namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(axsham)){
                 long minutes = Duration.between(current, axsham).toMinutes();
                 if (minutes == 0) {
                     msg = "Axşam namazının vaxtıdır";
-                } else if (minutes < 20) {
+                } else if (minutes <= 20 && minutes % 5 == 0) {
                     msg = String.format("Axşam namazına %d dəqiqə qalıb", minutes);
                 }
             } else if(current.isBefore(isha)){
                 long minutes = Duration.between(current, isha).toMinutes();
                 if (minutes == 0) {
                     msg = "İşa namazının vaxtıdır";
-                } else if (minutes < 20) {
+                } else if (minutes <= 20 && minutes % 5 == 0) {
                     msg = String.format("İşa namazına %d dəqiqə qalıb", minutes);
                 }
             }
