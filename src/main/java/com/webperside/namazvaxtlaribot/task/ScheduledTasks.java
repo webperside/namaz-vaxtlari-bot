@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.webperside.namazvaxtlaribot.config.Config.dates;
 
 @Component
 @RequiredArgsConstructor
