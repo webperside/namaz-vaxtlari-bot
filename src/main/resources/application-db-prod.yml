@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://vhnvdkqg14ylb5vc:zsocwx2omczuqah1@j21q532mu148i8ms.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/zx57863pn3ibv785?createDatabaseIfNotExist=true&useSSL=true&serverTimezone=Asia/Baku&useUnicode=true&characterEncoding=UTF-8
+    username: vhnvdkqg14ylb5vc
+    password: zsocwx2omczuqah1
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+      org.hibernate.envers.audit_table_suffix: _log
