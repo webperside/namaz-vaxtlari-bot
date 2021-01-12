@@ -1,8 +1,6 @@
 package com.webperside.namazvaxtlaribot;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlSelect;
+import com.gargoylesoftware.htmlunit.html.*;
 import com.webperside.namazvaxtlaribot.config.Config;
 import com.webperside.namazvaxtlaribot.external.APIService;
 import com.webperside.namazvaxtlaribot.models.City;
@@ -29,8 +27,6 @@ import java.util.List;
 @EnableScheduling
 public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
-    private final TelegramListener telegramListener;
-    private final APIService apiService;
     private final CityRepository cityRepository;
     private final SettlementRepository settlementRepository;
     private final CitySettlementRepository citySettlementRepository;
@@ -42,14 +38,41 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        LocalDateTime localDateTime = LocalDateTime.now();
-
-        System.out.println(localDateTime);
+//        testMethod();
+//        LocalDateTime localDateTime = LocalDateTime.now();
+//
+//        System.out.println(localDateTime);
 //        getSettlementsAndSave();
 //        getCitiesAndSave();
         //		testMethod();
 //		apiService.get();
 //		telegramListener.listener();
+    }
+
+    public void testMethod() throws IOException{
+        String url = "http://ahlibeyt.az/namazan";
+        DomElement element = webscrapService.scrapById(url, "table-center");
+
+//        System.out.println(element.asText());
+
+
+        List<DomElement> element2 = element.getByXPath("//table[@class='namaz']");
+
+        HtmlTable table = (HtmlTable) element2.get(0);
+
+        HtmlTableBody body = table.getBodies().get(0);
+
+        body.getChildElements().forEach(domElement -> {
+            HtmlTableRow row = (HtmlTableRow) domElement;
+            row.getCells().forEach(cell -> {
+                System.out.println(cell.asText());
+            });
+//            System.out.println(cell.asText());
+        });
+
+//        System.out.println(body.getDefaultStyleDisplay().value());
+
+//        System.out.println(table.asText());
     }
 
     public void getSettlementsAndSave() throws IOException{
@@ -135,53 +158,5 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
             cityRepository.saveAll(cities);
         }
-    }
-
-    public void testMethod() throws IOException {
-
-//		String newUrl = "https://www.namazzamani.net/prayer-times-Baki-Mardakyany-m.en";
-//
-//
-//		try(final WebClient webClient = new WebClient(BrowserVersion.CHROME)){
-//			webClient.getOptions().setCssEnabled(false);
-////			webClient.getOptions().setJavaScriptEnabled(false);
-////			webClient.waitForBackgroundJavaScriptStartingBefore(10000);
-//
-//
-//			final HtmlPage page = webClient.getPage(newUrl);
-//
-//			System.out.println(page.getElementById("timeScale").asText());
-//
-//			DomElement selectElement = page.getElementById("sehir");
-//
-//			for(DomElement options : selectElement.getChildElements()){
-//				HtmlOption option = (HtmlOption) options;
-//				System.out.println(option.getValueAttribute() + " " + option.asText());
-//			}
-//
-//			System.out.println(page.getElementById("sehir").asText());
-
-
-//			System.out.println(page.asXml());
-
-//			System.out.println(page.asText());
-
-//			DomElement element = page.getElementById("timetable");
-//			System.out.println(element.asText());
-//		}
-//		Document doc = Jsoup
-//				.connect("https://islam.az/namaz_cedveli/namaz-baki.html")
-//				.userAgent("Mozilla/56.0")
-//				.get();
-//
-//		System.out.println(doc);
-//
-//		Element table = doc.getElementById("timetable");
-//		System.out.println(table.outerHtml());
-//		Element data = table.getElementsByAttribute("tbody").get(0);
-//
-//		for(Element el : data.getAllElements()){
-//			System.out.println(el.data());
-//		}
     }
 }
