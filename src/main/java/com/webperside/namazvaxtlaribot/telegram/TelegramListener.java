@@ -12,6 +12,7 @@ public class TelegramListener {
 
     public void listener(){
         TelegramConfig.getInstance().setUpdatesListener(updates -> {
+
             updates.forEach(telegramService::process);
 
             return UpdatesListener.CONFIRMED_UPDATES_ALL;

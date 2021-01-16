@@ -1,14 +1,15 @@
 package com.webperside.namazvaxtlaribot;
 
 import com.gargoylesoftware.htmlunit.html.*;
-import com.webperside.namazvaxtlaribot.config.Config;
-import com.webperside.namazvaxtlaribot.external.APIService;
+import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.CitySettlement;
 import com.webperside.namazvaxtlaribot.models.Settlement;
+import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.CityRepository;
 import com.webperside.namazvaxtlaribot.repository.CitySettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
+import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,9 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     private final SettlementRepository settlementRepository;
     private final CitySettlementRepository citySettlementRepository;
     private final WebscrapService webscrapService;
+    private final SourceRepository sourceRepository;
+
+    private final TelegramListener listener;
 
     public static void main(String[] args) {
         SpringApplication.run(NamazVaxtlariBotApplication.class, args);
@@ -38,15 +42,52 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+//        saveCities();
 //        testMethod();
 //        LocalDateTime localDateTime = LocalDateTime.now();
 //
 //        System.out.println(localDateTime);
-//        getSettlementsAndSave();
 //        getCitiesAndSave();
-        //		testMethod();
+//        getSettlementsAndSave();
 //		apiService.get();
-//		telegramListener.listener();
+		listener.listener();
+    }
+
+    public void saveDefaultSettlement(){
+        settlementRepository.save(Settlement.builder().name("empty").value("empty").build());
+    }
+
+    public void saveCities(){
+        Source source = sourceRepository.findById(2).orElse(null);
+        Settlement defaultSettlement = settlementRepository.findById(1).orElse(null);
+        List<City> cities = new ArrayList<>();
+
+        cities.add(City.builder().name("Ağdam").value("11").source(source).build());
+        cities.add(City.builder().name("Astara").value("2").source(source).build());
+        cities.add(City.builder().name("Gəncə").value("14").source(source).build());
+        cities.add(City.builder().name("Qazax").value("19").source(source).build());
+        cities.add(City.builder().name("Quba").value("6").source(source).build());
+        cities.add(City.builder().name("Lənkəran").value("3").source(source).build());
+        cities.add(City.builder().name("Saatlı").value("7").source(source).build());
+        cities.add(City.builder().name("Sabirabad").value("5").source(source).build());
+        cities.add(City.builder().name("Şamaxı").value("6").source(source).build());
+        cities.add(City.builder().name("Şəki").value("12").source(source).build());
+        cities.add(City.builder().name("Xaçmaz").value("10").source(source).build());
+        cities.add(City.builder().name("Yevlax").value("11").source(source).build());
+        cities.add(City.builder().name("Naxçıvan").value("17").source(source).build());
+        cities.add(City.builder().name("Göyçay").value("8").source(source).build());
+        cities.add(City.builder().name("Zaqatala").value("14").source(source).build());
+
+        cities = cityRepository.saveAll(cities);
+
+        List<CitySettlement> citySettlements = new ArrayList<>();
+
+        for (City city : cities) {
+            citySettlements.add(CitySettlement.builder().settlement(defaultSettlement).city(city).build());
+        }
+
+        citySettlementRepository.saveAll(citySettlements);
+
     }
 
     public void testMethod() throws IOException{
@@ -78,12 +119,13 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     public void getSettlementsAndSave() throws IOException{
     	List<City> cities = cityRepository.findAll();
         Settlement defaultSettlement = settlementRepository.findById(1).orElse(null);
+        Source source = sourceRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Source not found"));
 
         for(City city : cities){
-            String params = city.getValue() + Config.VALUE_SEPARATOR;
-            String url = Config.URL_DS_NAMAZ_ZAMANI_NET.replace("{REPLACE}",params);
+            String params = city.getValue() + Constants.VALUE_SEPARATOR;
+            String url = source.getUrl().replace("{REPLACE}",params);
 
-            DomElement element = webscrapService.scrapById(url, Config.DS_NAMAZ_ZAMANI_NET_SETT_ID);
+            DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZ_ZAMANI_NET_SETT_ID);
 
             if(element instanceof HtmlSelect){
                 HtmlSelect selectElement = (HtmlSelect) element;
@@ -133,10 +175,12 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 	}
 
     public void getCitiesAndSave() throws IOException {
-        String params = Config.DS_NAMAZ_ZAMANI_NET_DEFAULT_CITY_VALUE;
-        String url = Config.URL_DS_NAMAZ_ZAMANI_NET.replace("{REPLACE}", params);
+        Source source = sourceRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Source not found"));
 
-        DomElement element = webscrapService.scrapById(url, Config.DS_NAMAZ_ZAMANI_NET_CITY_ID);
+        String params = Constants.DS_NAMAZ_ZAMANI_NET_DEFAULT_CITY_VALUE;
+        String url = source.getUrl().replace("{REPLACE}", params);
+
+        DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZ_ZAMANI_NET_CITY_ID);
 
         if (element instanceof HtmlSelect) {
             HtmlSelect selectElement = (HtmlSelect) element;
@@ -152,6 +196,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
                         City.builder()
                                 .name(name)
                                 .value(value)
+                                .source(Source.builder().id(1).build()) //namazzamani.net
                                 .build()
 				);
             }

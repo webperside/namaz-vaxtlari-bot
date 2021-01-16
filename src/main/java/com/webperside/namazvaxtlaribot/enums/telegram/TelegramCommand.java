@@ -1,4 +1,4 @@
-package com.webperside.namazvaxtlaribot.enums;
+package com.webperside.namazvaxtlaribot.enums.telegram;
 
 public enum TelegramCommand {
 

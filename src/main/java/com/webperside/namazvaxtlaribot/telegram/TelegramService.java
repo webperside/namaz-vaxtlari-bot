@@ -1,28 +1,62 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.model.request.ChatAction;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.SendChatAction;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.webperside.namazvaxtlaribot.config.Constants;
+import com.webperside.namazvaxtlaribot.enums.Emoji;
+import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
+import com.webperside.namazvaxtlaribot.models.Source;
+import com.webperside.namazvaxtlaribot.models.User;
+import com.webperside.namazvaxtlaribot.repository.UserRepository;
+import com.webperside.namazvaxtlaribot.service.SourceService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import static com.webperside.namazvaxtlaribot.telegram.TelegramConfig.execute;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TelegramService {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    private final MessageSource messageSource;
+    private final UserRepository userRepository;
+    private final SourceService sourceService;
 
     public void process(Update update) {
-        long chatId = update.message().chat().id();
-        String text = update.message().text();
+        // as user id
+        System.out.println(update);
+        if (update.message() == null && update.callbackQuery() != null) {
+            execute(new AnswerCallbackQuery(update.callbackQuery().id()));
+            System.out.println(update.callbackQuery().data());
+//            sendMessage(update.callbackQuery().message().chat().id(), update.callbackQuery().message().text());
+        } else {
+            String text = update.message().text();
 
-//        if (TelegramCommand.START.getCommand().equals(text)) {
-//            if (writeToFile(update.message().chat().id())) {
-//                sendMessage(chatId, formatMessage(TelegramMessage.START_MESSAGE, getUserInfo(update.message().from())));
-//            }
-//        }
+            if ("test".equals(text)) {
+                User user = userRepository.findAll().get(0);
+                utilProcessSelectSource(user);
+            } else if (TelegramCommand.START.getCommand().equals(text)) {
+                User user = processStart(update);
+                utilProcessSelectSource(user);
+            }
+
+        }
     }
 
 //    public void sendDate(String key, DateDto dateDto) {
@@ -89,15 +123,70 @@ public class TelegramService {
 //
 //    }
 
+    private User processStart(Update update) {
+        long chatId = update.message().chat().id();
+
+        if (userRepository.existsByUserTgId(String.valueOf(chatId))) {
+            String alreadyExist = messageSource.getMessage("telegram.user_already_exist", null, Locale.getDefault());
+            sendMessage(chatId, alreadyExist);
+            return null;
+        }
+
+        User user = userRepository.save(User.builder()
+                .userTgId(String.valueOf(chatId)) // as user id
+                .build());
+
+        String from = getUserInfo(update.message().from());
+        String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
+        sendMessage(update.message().chat().id(), startMessage);
+
+        return user;
+    }
+
+    private void utilProcessSelectSource(User user) {
+        Page<Source> sources = sourceService.getAll(0);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+        sources.getContent().forEach(source -> {
+            markup.addRow(Collections.singletonList(new InlineKeyboardButton(
+                    source.getName()).callbackData(Constants.CALLBACK_VAL + source.getName())).toArray(new InlineKeyboardButton[0]));
+        });
+
+        List<InlineKeyboardButton> navigator = new ArrayList<>();
+
+        if (sources.hasNext()) {
+            navigator.add(new InlineKeyboardButton(
+                    Emoji.RIGHT_ARROW.getValue()).callbackData(Constants.CALLBACK_VAL + Emoji.RIGHT_ARROW.getCallback()));
+        }
+
+        if (sources.hasPrevious()) {
+            navigator.add(new InlineKeyboardButton(
+                    Emoji.LEFT_ARROW.getValue()).callbackData(Constants.CALLBACK_VAL + Emoji.LEFT_ARROW.getCallback()));
+        }
+
+        markup.addRow(navigator.toArray(new InlineKeyboardButton[0]));
+
+        long userTgId = Long.parseLong(user.getUserTgId());
+        String sourceSelect = messageSource.getMessage("telegram.select_source", null, Locale.getDefault());
+        sendMessageWithKeyboard(userTgId, sourceSelect, markup);
+    }
+
     private void sendMessage(long chatId, String message) {
-        TelegramConfig.getInstance().execute(new SendMessage(chatId, message));
+        ChatAction action = ChatAction.typing;
+
+        execute(new SendChatAction(chatId, action));
+        execute(new SendMessage(chatId, message));
     }
 
-    private String formatMessage(TelegramMessage telegramMessage, String message) {
-        return String.format(telegramMessage.getMessage(), message);
+    private void sendMessageWithKeyboard(long chatId, String message, InlineKeyboardMarkup markup) {
+        ChatAction action = ChatAction.typing;
+        SendMessage sendMessage = new SendMessage(chatId, message).replyMarkup(markup);
+
+        execute(new SendChatAction(chatId, action));
+        execute(sendMessage);
     }
 
-    private String getUserInfo(User user) {
+    private String getUserInfo(com.pengrad.telegrambot.model.User user) {
         String firstName = user.firstName();
         String lastName = user.lastName();
 

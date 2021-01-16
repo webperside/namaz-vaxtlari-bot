@@ -1,6 +1,8 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.response.BaseResponse;
 
 import java.util.Base64;
 
@@ -14,6 +16,10 @@ public class TelegramConfig {
 
         bot = new TelegramBot(new String(Base64.getDecoder().decode(TOKEN)));
         return bot;
+    }
+
+    public static <T extends BaseRequest<T, R>, R extends BaseResponse> R execute(T request){
+        return getInstance().execute(request);
     }
 
 }
