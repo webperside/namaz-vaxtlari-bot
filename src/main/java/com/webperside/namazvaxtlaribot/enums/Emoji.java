@@ -1,8 +1,8 @@
 package com.webperside.namazvaxtlaribot.enums;
 
 public enum Emoji {
-    LEFT_ARROW("Left arrow","\u2B05", "left-a"),
-    RIGHT_ARROW("Right arrow",	"\u27A1","right-a"),
+    LEFT_ARROW("Left arrow","\u2B05", "left_a"),
+    RIGHT_ARROW("Right arrow","\u27A1","right_a"),
     CHECK("Check","\u2705","check");
 
     private final String name;

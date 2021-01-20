@@ -1,6 +1,9 @@
 package com.webperside.namazvaxtlaribot;
 
 import com.gargoylesoftware.htmlunit.html.*;
+import com.pengrad.telegrambot.model.request.ChatAction;
+import com.pengrad.telegrambot.request.SendChatAction;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.CitySettlement;
@@ -12,6 +15,7 @@ import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
+import com.webperside.namazvaxtlaribot.telegram.TelegramService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,6 +26,8 @@ import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.webperside.namazvaxtlaribot.telegram.TelegramConfig.execute;
 
 @SpringBootApplication
 @RequiredArgsConstructor

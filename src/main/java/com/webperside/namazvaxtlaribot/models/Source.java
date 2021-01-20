@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.List;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
@@ -31,5 +33,6 @@ public class Source {
     @Column(name = "url", length = 100)
     private String url;
 
-
+    @OneToMany(mappedBy = "source")
+    private List<City> cities;
 }

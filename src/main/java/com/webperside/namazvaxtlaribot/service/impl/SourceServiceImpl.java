@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,5 +19,10 @@ public class SourceServiceImpl implements SourceService {
     @Override
     public Page<Source> getAll(Integer page) {
         return sourceRepository.findAll(PageRequest.of(page, 4));
+    }
+
+    @Override
+    public Optional<Source> findById(Integer sourceId) {
+        return sourceRepository.findById(sourceId);
     }
 }

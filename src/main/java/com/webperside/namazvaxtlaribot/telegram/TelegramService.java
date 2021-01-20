@@ -1,26 +1,34 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendChatAction;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.webperside.namazvaxtlaribot.config.Constants;
+import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
+import com.webperside.namazvaxtlaribot.service.FileService;
 import com.webperside.namazvaxtlaribot.service.SourceService;
+import com.webperside.namazvaxtlaribot.util.MessageCreatorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,23 +45,23 @@ public class TelegramService {
     private final MessageSource messageSource;
     private final UserRepository userRepository;
     private final SourceService sourceService;
+    private final FileService fileService;
+    private final MessageCreatorUtil messageCreatorUtil;
 
-    public void process(Update update) {
-        // as user id
+    public void process(Update update) throws IOException {
         System.out.println(update);
         if (update.message() == null && update.callbackQuery() != null) {
-            execute(new AnswerCallbackQuery(update.callbackQuery().id()));
-            System.out.println(update.callbackQuery().data());
-//            sendMessage(update.callbackQuery().message().chat().id(), update.callbackQuery().message().text());
+            processCallback(update);
         } else {
             String text = update.message().text();
 
             if ("test".equals(text)) {
                 User user = userRepository.findAll().get(0);
-                utilProcessSelectSource(user);
+                utilProcessSelectSource(Long.valueOf(user.getUserTgId()));
             } else if (TelegramCommand.START.getCommand().equals(text)) {
-                User user = processStart(update);
-                utilProcessSelectSource(user);
+                processStart(update);
+            } else {
+                fileService.write(getUserInfo(update.message().from()) + " " + update.message().from().id() + " " + Instant.now().toString(),update.message().text() + " " + update.message().chat().id());
             }
 
         }
@@ -123,52 +131,120 @@ public class TelegramService {
 //
 //    }
 
-    private User processStart(Update update) {
+    private void processCallback(Update update){
+        execute(new AnswerCallbackQuery(update.callbackQuery().id()));
+        long userTgId = update.callbackQuery().message().chat().id();
+        int msgId = update.callbackQuery().message().messageId();
+        String callback = update.callbackQuery().data();
+
+        if(callback.equals(Constants.BUTTON_CB_SELECT_SOURCE)) {
+            utilProcessSelectSource(userTgId);
+        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE_NAVIGATE)){
+            String[] params = callback.split(Constants.PARAM_SEPARATOR);
+            String navigateTo = params[2];
+            int page = Integer.parseInt(params[3]);
+            utilProcessSelectSourceNavigate(userTgId, navigateTo, msgId, page);
+        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE_DESCRIPTION)){
+            String[] params = callback.split(Constants.PARAM_SEPARATOR);
+            Integer sourceId = Integer.valueOf(params[2]);
+            int page = Integer.parseInt(params[3]);
+            utilProcessSelectSourceDescription(userTgId, sourceId, msgId, page);
+        } else if(callback.contains(Constants.BUTTON_CB_SELECT_CITY)){
+            Integer sourceId = Integer.valueOf(callback.split(Constants.PARAM_SEPARATOR)[2]);
+            utilProcessSelectCity(userTgId, sourceId, msgId);
+        } else if(callback.contains(Constants.BUTTON_CB_SELECT_CITY_NAVIGATE)){
+            String[] params = callback.split(Constants.PARAM_SEPARATOR);
+            String navigateTo = params[2];
+            Integer sourceId = Integer.parseInt(params[3]);
+            int page = Integer.parseInt(params[4]);
+            utilProcessSelectCityNavigate(userTgId, navigateTo, sourceId, msgId, page);
+        }
+
+
+//        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE)){
+//            String[] params = callback.split(Constants.PARAM_SEPARATOR);
+//            Integer sourceId = Integer.valueOf(params[2]);
+//            int page = Integer.parseInt(params[3]);
+//            utilProcessSelectSourceDescription(userTgId, sourceId, msgId, page);
+//        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE_NAVIGATE)){
+//            String[] params = callback.split(Constants.PARAM_SEPARATOR);
+//            String navigateTo = params[2];
+//            int page = Integer.parseInt(params[3]);
+//            utilProcessSelectSourceNavigate(userTgId, navigateTo, msgId, page);
+//        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE_DESCRIPTION)){
+//            int sourceId = Integer.parseInt(callback.split(Constants.PARAM_SEPARATOR)[2]);
+//
+//        } else if(callback.contains(Constants.BUTTON_CB_SELECT_SOURCE_DESCRIPTION_NAVIGATE)){
+//            int page = Integer.parseInt(callback.split(Constants.PARAM_SEPARATOR)[2]);
+//        }
+
+    }
+
+    private void processStart(Update update) {
         long chatId = update.message().chat().id();
 
         if (userRepository.existsByUserTgId(String.valueOf(chatId))) {
             String alreadyExist = messageSource.getMessage("telegram.user_already_exist", null, Locale.getDefault());
             sendMessage(chatId, alreadyExist);
-            return null;
         }
 
-        User user = userRepository.save(User.builder()
+        userRepository.save(User.builder()
                 .userTgId(String.valueOf(chatId)) // as user id
                 .build());
 
         String from = getUserInfo(update.message().from());
         String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
-        sendMessage(update.message().chat().id(), startMessage);
-
-        return user;
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+                new InlineKeyboardButton(Constants.BUTTON_T_BASHLA)
+                        .callbackData(Constants.BUTTON_CB_SELECT_SOURCE)
+        );
+        sendMessageWithKeyboard(chatId, startMessage, markup);
     }
 
-    private void utilProcessSelectSource(User user) {
-        Page<Source> sources = sourceService.getAll(0);
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    private void utilProcessSelectSource(Long userTgId) {
+        MessageDto dto = messageCreatorUtil.selectSourceCreator(0);
+        sendMessageWithKeyboard(userTgId, dto.getMessage(), dto.getMarkup());
+    }
 
-        sources.getContent().forEach(source -> {
-            markup.addRow(Collections.singletonList(new InlineKeyboardButton(
-                    source.getName()).callbackData(Constants.CALLBACK_VAL + source.getName())).toArray(new InlineKeyboardButton[0]));
-        });
+    private void utilProcessSelectSourceDescription(Long userTgId, Integer sourceId, Integer messageId, int page){
+        Source source = sourceService.findById(sourceId).orElseThrow(EntityNotFoundException::new);
 
-        List<InlineKeyboardButton> navigator = new ArrayList<>();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+                new InlineKeyboardButton(Emoji.LEFT_ARROW.getValue())
+                        .callbackData(Constants.BUTTON_CB_SELECT_SOURCE_NAVIGATE + Emoji.LEFT_ARROW.getCallback() + Constants.PARAM_SEPARATOR + page),
+                new InlineKeyboardButton(Constants.BUTTON_T_SELECT_SOURCE_CONFIRM)
+                        .callbackData(Constants.BUTTON_CB_SELECT_CITY + sourceId)
+        );
 
-        if (sources.hasNext()) {
-            navigator.add(new InlineKeyboardButton(
-                    Emoji.RIGHT_ARROW.getValue()).callbackData(Constants.CALLBACK_VAL + Emoji.RIGHT_ARROW.getCallback()));
+        String customMessage = source.getDescription();
+        editMessageWithKeyboard(userTgId, customMessage, markup, messageId);
+    }
+
+    private void utilProcessSelectSourceNavigate(Long userTgId, String navigateTo, Integer messageId, int page){
+        if(navigateTo.equals(Emoji.LEFT_ARROW.getCallback()) && page != 0){
+            page--;
+        } else {
+            page++;
         }
 
-        if (sources.hasPrevious()) {
-            navigator.add(new InlineKeyboardButton(
-                    Emoji.LEFT_ARROW.getValue()).callbackData(Constants.CALLBACK_VAL + Emoji.LEFT_ARROW.getCallback()));
+        MessageDto dto = messageCreatorUtil.selectSourceCreator(page);
+        editMessageWithKeyboard(userTgId, dto.getMessage(), dto.getMarkup(), messageId);
+    }
+
+    private void utilProcessSelectCity(Long userTgId, Integer sourceId, Integer messageId){
+        MessageDto dto = messageCreatorUtil.selectCityCreator(0,sourceId);
+        editMessageWithKeyboard(userTgId, dto.getMessage(), dto.getMarkup(), messageId);
+    }
+
+    private void utilProcessSelectCityNavigate(Long userTgId, String navigateTo, Integer sourceId, Integer messageId, Integer page){
+        if(navigateTo.equals(Emoji.LEFT_ARROW.getCallback()) && page != 0){
+            page--;
+        } else {
+            page++;
         }
 
-        markup.addRow(navigator.toArray(new InlineKeyboardButton[0]));
-
-        long userTgId = Long.parseLong(user.getUserTgId());
-        String sourceSelect = messageSource.getMessage("telegram.select_source", null, Locale.getDefault());
-        sendMessageWithKeyboard(userTgId, sourceSelect, markup);
+        MessageDto dto = messageCreatorUtil.selectCityCreator(page, sourceId);
+        editMessageWithKeyboard(userTgId, dto.getMessage(), dto.getMarkup(), messageId);
     }
 
     private void sendMessage(long chatId, String message) {
@@ -184,6 +260,10 @@ public class TelegramService {
 
         execute(new SendChatAction(chatId, action));
         execute(sendMessage);
+    }
+
+    private void editMessageWithKeyboard(long chatId, String message, InlineKeyboardMarkup markup, int messageId){
+        execute(new EditMessageText(chatId, messageId, message).replyMarkup(markup));
     }
 
     private String getUserInfo(com.pengrad.telegrambot.model.User user) {
