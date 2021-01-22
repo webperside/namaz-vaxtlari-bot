@@ -2,7 +2,6 @@ package com.webperside.namazvaxtlaribot.util;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.models.City;
@@ -19,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static com.webperside.namazvaxtlaribot.config.Constants.*;
+
 @Service
 @RequiredArgsConstructor
 public class MessageCreatorUtil {
@@ -33,11 +34,11 @@ public class MessageCreatorUtil {
 
         sources.getContent().forEach(source -> {
             markup.addRow(Collections.singletonList(new InlineKeyboardButton(source.getName())
-                    .callbackData(Constants.BUTTON_CB_SELECT_SOURCE_DESCRIPTION + source.getId() + Constants.PARAM_SEPARATOR + page))
+                    .callbackData(BUTTON_CB_SELECT_SOURCE_DESCRIPTION + source.getId() + PARAM_SEPARATOR + page))
                     .toArray(new InlineKeyboardButton[0]));
         });
 
-        markup.addRow(createNavigator(sources, Constants.BUTTON_CB_SELECT_SOURCE_NAVIGATE, new String[]{String.valueOf(page)}).toArray(new InlineKeyboardButton[0]));
+        markup.addRow(createNavigator(sources, BUTTON_CB_SELECT_SOURCE, new String[]{String.valueOf(page)}).toArray(new InlineKeyboardButton[0]));
 
         String sourceSelect = messageSource.getMessage("telegram.select_source", null, Locale.getDefault());
         return MessageDto.builder()
@@ -46,8 +47,13 @@ public class MessageCreatorUtil {
                 .build();
     }
 
-    public MessageDto selectCityCreator(Integer page, Integer sourceId) {
-        Page<City> cities = cityService.getAllBySourceId(sourceId, page);
+    public MessageDto selectCityCreator(Integer cityPage, Integer sourceId, Integer sourcePage) {
+        Page<City> cities = cityService.getAllBySourceId(sourceId, cityPage);
+
+        if(!cities.hasContent()){
+            return MessageDto.builder().message("Not developed").markup(new InlineKeyboardMarkup()).build();
+        }
+
         int size = cities.getSize();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
@@ -81,7 +87,10 @@ public class MessageCreatorUtil {
 
         }
 
-        markup.addRow(createNavigator(cities, Constants.BUTTON_CB_SELECT_CITY_NAVIGATE, new String[]{String.valueOf(sourceId), String.valueOf(page)}).toArray(new InlineKeyboardButton[0]));
+        String[] params = new String[]{String.valueOf(cityPage), String.valueOf(sourceId), String.valueOf(sourcePage)};
+        markup.addRow(createNavigator(cities, BUTTON_CB_SELECT_CITY, params).toArray(new InlineKeyboardButton[0]));
+        markup.addRow(new InlineKeyboardButton(BUTTON_T_BACK_TO_SELECT_SOURCE_MENU)
+                .callbackData(BUTTON_CB_SELECT_SOURCE+BUTTON_CB_NAV_EMPTY+PARAM_SEPARATOR+sourcePage));
 
         String selectCity = messageSource.getMessage("telegram.select_city", null, Locale.getDefault());
         return MessageDto.builder()
@@ -96,20 +105,20 @@ public class MessageCreatorUtil {
 
         if (list.hasPrevious()) {
             navigator.add(new InlineKeyboardButton(Emoji.LEFT_ARROW.getValue())
-                    .callbackData(callback + Emoji.LEFT_ARROW.getCallback() + Constants.PARAM_SEPARATOR + prepared)
+                    .callbackData(callback + Emoji.LEFT_ARROW.getCallback() + PARAM_SEPARATOR + prepared)
             );
         }
 
         if (list.hasNext()) {
             navigator.add(new InlineKeyboardButton(Emoji.RIGHT_ARROW.getValue())
-                    .callbackData(callback + Emoji.RIGHT_ARROW.getCallback() + Constants.PARAM_SEPARATOR + prepared)
+                    .callbackData(callback + Emoji.RIGHT_ARROW.getCallback() + PARAM_SEPARATOR + prepared)
             );
         }
 
         return navigator;
     }
 
-    private String prepareParams(String[] params) {
-        return String.join(Constants.PARAM_SEPARATOR, params);
+    public String prepareParams(String[] params) {
+        return String.join(PARAM_SEPARATOR, params);
     }
 }

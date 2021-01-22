@@ -1,5 +1,7 @@
 package com.webperside.namazvaxtlaribot.config;
 
+import com.webperside.namazvaxtlaribot.enums.Emoji;
+
 public class Constants {
 
     public static final String VALUE_SEPARATOR = "-";
@@ -15,17 +17,13 @@ public class Constants {
     // buttons
     public static final String PARAM_SEPARATOR = "&";
     public static final String BUTTON_CB = "CB" + PARAM_SEPARATOR;
-    public static final String BUTTON_CB_BASHLA = BUTTON_CB + "bashla";
     public static final String BUTTON_T_BASHLA = "Başla";
-    public static final String BUTTON_CB_SELECT_SOURCE = BUTTON_CB + "select_source"; // + sourceId
-    public static final String BUTTON_CB_SELECT_SOURCE_NAVIGATE = BUTTON_CB + "select_source_navigate" + PARAM_SEPARATOR; // + navigateValue
-    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = BUTTON_CB + "select_source_description" + PARAM_SEPARATOR; // + sourceId + page
-    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION_NAVIGATE = BUTTON_CB + "select_source_description_navigate" + PARAM_SEPARATOR; // + page
-    public static final String BUTTON_CB_SELECT_SOURCE_CONFIRM = BUTTON_CB + "select_source_confirm" + PARAM_SEPARATOR; // sourceId
-    public static final String BUTTON_CB_SELECT_SOURCE_CONFIRM_NAVIGATE = BUTTON_CB + "select_source_confirm_navigate" + PARAM_SEPARATOR;
     public static final String BUTTON_T_SELECT_SOURCE_CONFIRM = "Seç";
-    public static final String BUTTON_CB_SELECT_CITY = BUTTON_CB + "select_city" + PARAM_SEPARATOR; // sourceId
-    public static final String BUTTON_CB_SELECT_CITY_NAVIGATE = BUTTON_CB + "select_city_navigate" + PARAM_SEPARATOR; // sourceId + navigateValue + page
-
+    public static final String BUTTON_T_BACK_TO_SELECT_SOURCE_MENU = Emoji.LEFT_ARROW.getValue() + " Mənbə menyusuna geri dön";
+    public static final String BUTTON_CB_NAV_FIRST_LOAD = "first_load";
+    public static final String BUTTON_CB_NAV_EMPTY = "empty";
+    public static final String BUTTON_CB_SELECT_SOURCE = BUTTON_CB + "select_source" + PARAM_SEPARATOR; // +navigateTo+page
+    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = BUTTON_CB + "select_source_description" + PARAM_SEPARATOR; // + sourceId + page
+    public static final String BUTTON_CB_SELECT_CITY = BUTTON_CB + "select_city" + PARAM_SEPARATOR; // +navigateTo+cityPage+sourceId+sourcePage
 
 }
