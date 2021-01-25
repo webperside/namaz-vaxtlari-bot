@@ -23,6 +23,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean existsByTgId(String tgId) {
+        return userRepository.existsByUserTgId(tgId);
+    }
+
+    @Override
     public void save(String tgId) {
         userRepository.save(User.builder().userTgId(tgId).build());
     }

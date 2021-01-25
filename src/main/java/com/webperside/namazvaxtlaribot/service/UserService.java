@@ -8,6 +8,8 @@ public interface UserService {
 
     User getByTgId(String tgId);
 
+    boolean existsByTgId(String tgId);
+
     void save(String tgId);
 
     void update(User user);

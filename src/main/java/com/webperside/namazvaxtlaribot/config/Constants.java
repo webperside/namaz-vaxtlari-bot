@@ -16,14 +16,20 @@ public class Constants {
 
     // buttons
     public static final String PARAM_SEPARATOR = "&";
-    public static final String BUTTON_CB = "CB" + PARAM_SEPARATOR;
     public static final String BUTTON_T_BASHLA = "Başla";
     public static final String BUTTON_T_SELECT_SOURCE_CONFIRM = "Seç";
     public static final String BUTTON_T_BACK_TO_SELECT_SOURCE_MENU = Emoji.LEFT_ARROW.getValue() + " Mənbə menyusuna geri dön";
-    public static final String BUTTON_CB_NAV_FIRST_LOAD = "first_load";
-    public static final String BUTTON_CB_NAV_EMPTY = "empty";
-    public static final String BUTTON_CB_SELECT_SOURCE = BUTTON_CB + "select_source" + PARAM_SEPARATOR; // +navigateTo+page
-    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = BUTTON_CB + "select_source_description" + PARAM_SEPARATOR; // + sourceId + page
-    public static final String BUTTON_CB_SELECT_CITY = BUTTON_CB + "select_city" + PARAM_SEPARATOR; // +navigateTo+cityPage+sourceId+sourcePage
+    public static final String BUTTON_CB_NAV_FIRST_LOAD = "f_l";
+    public static final String BUTTON_CB_NAV_EMPTY = "e";
+    public static final String BUTTON_CB_SELECT_SOURCE = "s_s"; // +navigateTo+page
+    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = "s_s_d"; // + sourceId + page
+    public static final String BUTTON_CB_SELECT_CITY = "s_c"; // +navigateTo+cityPage+sourceId+sourcePage
 
+
+    // params value
+    public static final String NAVIGATE_TO = "n_t";
+    public static final String SOURCE_PAGE  = "s_p";
+    public static final String CITY_PAGE = "c_p";
+    public static final String SOURCE_ID = "s_i";
+    public static final String CITY_ID = "c_i";
 }

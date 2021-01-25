@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
@@ -9,6 +10,7 @@ import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendChatAction;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
+import com.webperside.namazvaxtlaribot.dto.Params;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
 import com.webperside.namazvaxtlaribot.models.Source;
@@ -16,6 +18,7 @@ import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
 import com.webperside.namazvaxtlaribot.service.FileService;
 import com.webperside.namazvaxtlaribot.service.SourceService;
+import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.util.MessageCreatorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.*;
 import static com.webperside.namazvaxtlaribot.telegram.TelegramConfig.execute;
@@ -38,21 +42,19 @@ public class TelegramService {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
     private final MessageSource messageSource;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final SourceService sourceService;
     private final FileService fileService;
     private final MessageCreatorUtil messageCreatorUtil;
 
     public void process(Update update) throws IOException {
-        System.out.println(update);
         if (update.message() == null && update.callbackQuery() != null) {
             processCallback(update);
         } else {
             String text = update.message().text();
 
             if ("test".equals(text)) {
-                User user = userRepository.findAll().get(0);
-                utilProcessSelectSource(Long.valueOf(user.getUserTgId()));
+                sendMessage(update.message().chat().id(),"test");
             } else if (TelegramCommand.START.getCommand().equals(text)) {
                 processStart(update);
             } else {
@@ -62,100 +64,43 @@ public class TelegramService {
         }
     }
 
-//    public void sendDate(String key, DateDto dateDto) {
-//        try {
-//            String msg = null;
-//            DateFormat df = new SimpleDateFormat("HH:mm dd.MM.yyyy");
-//
-//            Instant current = Instant.now().plus(Duration.ofHours(4));
-//
-//            Date dateSubh = df.parse(dateDto.getSubh() + " " + key);
-//            Instant subh = dateSubh.toInstant();
-//            Date dateZohr = df.parse(dateDto.getZohr() + " " + key);
-//            Instant zohr = dateZohr.toInstant();
-//            Date dateEsr = df.parse(dateDto.getEsr() + " " + key);
-//            Instant esr = dateEsr.toInstant();
-//            Date dateAxsham = df.parse(dateDto.getAxsham() + " " + key);
-//            Instant axsham = dateAxsham.toInstant();
-//            Date dateIsha = df.parse(dateDto.getIsha() + " " + key);
-//            Instant isha = dateIsha.toInstant();
-//
-//            if (current.isBefore(subh)) {
-//                long minutes = Duration.between(current, subh).toMinutes();
-//                if (minutes == 0) {
-//                    msg = "Sübh namazının vaxtıdır";
-//                } else if (minutes <= 20 && minutes % 5 == 0) {
-//                    msg = String.format("Sübh namazına %d dəqiqə qalıb", minutes);
-//                }
-//            } else if(current.isBefore(zohr)){
-//                long minutes = Duration.between(current, zohr).toMinutes();
-//                if (minutes == 0) {
-//                    msg = "Zöhr namazının vaxtıdır";
-//                } else if (minutes <= 20 && minutes % 5 == 0) {
-//                    msg = String.format("Zöhr namazına %d dəqiqə qalıb", minutes);
-//                }
-//            } else if(current.isBefore(esr)){
-//                long minutes = Duration.between(current, esr).toMinutes();
-//                if (minutes == 0) {
-//                    msg = "Əsr namazının vaxtıdır";
-//                } else if (minutes <= 20 && minutes % 5 == 0) {
-//                    msg = String.format("Əsr namazına %d dəqiqə qalıb", minutes);
-//                }
-//            } else if(current.isBefore(axsham)){
-//                long minutes = Duration.between(current, axsham).toMinutes();
-//                if (minutes == 0) {
-//                    msg = "Axşam namazının vaxtıdır";
-//                } else if (minutes <= 20 && minutes % 5 == 0) {
-//                    msg = String.format("Axşam namazına %d dəqiqə qalıb", minutes);
-//                }
-//            } else if(current.isBefore(isha)){
-//                long minutes = Duration.between(current, isha).toMinutes();
-//                if (minutes == 0) {
-//                    msg = "İşa namazının vaxtıdır";
-//                } else if (minutes <= 20 && minutes % 5 == 0) {
-//                    msg = String.format("İşa namazına %d dəqiqə qalıb", minutes);
-//                }
-//            }
-//
-//            if(msg != null){
-//                sendBulkMessages(msg);
-//            }
-//        } catch (ParseException e) {
-//            log.error(e.getMessage());
-//        }
-//
-//    }
-
     private void processCallback(Update update){
         execute(new AnswerCallbackQuery(update.callbackQuery().id()));
         long userTgId = update.callbackQuery().message().chat().id();
         int msgId = update.callbackQuery().message().messageId();
         String callback = update.callbackQuery().data();
+        Params params = Params.split(callback);
+        String main = params.getMain();
+        Map<String, String> values = params.getValues();
 
-        if(callback.contains(BUTTON_CB_SELECT_SOURCE)) {
-            String[] params = callback.split(PARAM_SEPARATOR);
-            String navigateTo = params[2];
-            int page = Integer.parseInt(params[3]);
-            if(navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)){
-                utilProcessSelectSource(userTgId);
-            }  else {
-                utilProcessSelectSourceNavigate(userTgId, navigateTo, msgId, page);
+        switch (main) {
+            case BUTTON_CB_SELECT_SOURCE: {
+                String navigateTo = values.get(NAVIGATE_TO);
+                int sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
+                if (navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)) {
+                    utilProcessSelectSource(userTgId);
+                } else {
+                    utilProcessSelectSourceNavigate(userTgId, navigateTo, msgId, sourcePage);
+                }
+                break;
             }
-        } else if(callback.contains(BUTTON_CB_SELECT_SOURCE_DESCRIPTION)){
-            String[] params = callback.split(PARAM_SEPARATOR);
-            Integer sourceId = Integer.valueOf(params[2]);
-            int page = Integer.parseInt(params[3]);
-            utilProcessSelectSourceDescription(userTgId, sourceId, msgId, page);
-        } else if(callback.contains(BUTTON_CB_SELECT_CITY)){
-            String[] params = callback.split(PARAM_SEPARATOR);
-            String navigateTo = params[2];
-            int cityPage = Integer.parseInt(params[3]);
-            Integer sourceId = Integer.parseInt(params[4]);
-            int sourcePage = Integer.parseInt(params[5]);
-            if(navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)){
-                utilProcessSelectCity(userTgId, sourceId, sourcePage, msgId);
-            } else {
-                utilProcessSelectCityNavigate(userTgId, navigateTo, cityPage, sourceId, sourcePage, msgId);
+            case BUTTON_CB_SELECT_SOURCE_DESCRIPTION: {
+                Integer sourceId = Integer.valueOf(values.get(SOURCE_ID));
+                int sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
+                utilProcessSelectSourceDescription(userTgId, sourceId, msgId, sourcePage);
+                break;
+            }
+            case BUTTON_CB_SELECT_CITY: {
+                String navigateTo = values.get(NAVIGATE_TO);
+                int cityPage = Integer.parseInt(values.get(CITY_PAGE));
+                Integer sourceId = Integer.parseInt(values.get(SOURCE_ID));
+                int sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
+                if (navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)) {
+                    utilProcessSelectCity(userTgId, sourceId, sourcePage, msgId);
+                } else {
+                    utilProcessSelectCityNavigate(userTgId, navigateTo, cityPage, sourceId, sourcePage, msgId);
+                }
+                break;
             }
         }
 
@@ -164,37 +109,44 @@ public class TelegramService {
     private void processStart(Update update) {
         long chatId = update.message().chat().id();
 
-        if (userRepository.existsByUserTgId(String.valueOf(chatId))) {
+        if (userService.existsByTgId(String.valueOf(chatId))) {
             String alreadyExist = messageSource.getMessage("telegram.user_already_exist", null, Locale.getDefault());
             sendMessage(chatId, alreadyExist);
+            return ;
         }
 
-        userRepository.save(User.builder()
-                .userTgId(String.valueOf(chatId)) // as user id
-                .build());
+        userService.save(String.valueOf(chatId));
 
         String from = getUserInfo(update.message().from());
-        String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
-                new InlineKeyboardButton(BUTTON_T_BASHLA)
-                        .callbackData(BUTTON_CB_SELECT_SOURCE + BUTTON_CB_NAV_FIRST_LOAD + PARAM_SEPARATOR + 0)
-        );
-        sendMessageWithKeyboard(chatId, startMessage, markup);
+        MessageDto dto = messageCreatorUtil.startCreator(from);
+        sendMessageWithKeyboard(chatId, dto);
     }
 
     private void utilProcessSelectSource(Long userTgId) {
         MessageDto dto = messageCreatorUtil.selectSourceCreator(0);
-        sendMessageWithKeyboard(userTgId, dto.getMessage(), dto.getMarkup());
+        sendMessageWithKeyboard(userTgId, dto);
     }
 
-    private void utilProcessSelectSourceDescription(Long userTgId, Integer sourceId, Integer messageId, int page){
+    private void utilProcessSelectSourceDescription(Long userTgId, Integer sourceId, Integer messageId, int sourcePage){
         Source source = sourceService.findById(sourceId).orElseThrow(EntityNotFoundException::new);
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
                 new InlineKeyboardButton(Emoji.LEFT_ARROW.getValue())
-                        .callbackData(BUTTON_CB_SELECT_SOURCE + BUTTON_CB_NAV_EMPTY + PARAM_SEPARATOR + page),
+                        .callbackData(
+                                Params.builderWith(BUTTON_CB_SELECT_SOURCE)
+                                        .put(NAVIGATE_TO,BUTTON_CB_NAV_EMPTY)
+                                        .put(SOURCE_PAGE,String.valueOf(sourcePage))
+                                        .build().join()
+                        ),
                 new InlineKeyboardButton(BUTTON_T_SELECT_SOURCE_CONFIRM)
-                        .callbackData(BUTTON_CB_SELECT_CITY + BUTTON_CB_NAV_FIRST_LOAD + PARAM_SEPARATOR + 0 + PARAM_SEPARATOR + sourceId + PARAM_SEPARATOR + page)
+                       .callbackData(
+                                Params.builderWith(BUTTON_CB_SELECT_CITY)
+                                        .put(NAVIGATE_TO, BUTTON_CB_NAV_FIRST_LOAD)
+                                        .put(CITY_PAGE,"0")
+                                        .put(SOURCE_ID,String.valueOf(sourceId))
+                                        .put(SOURCE_PAGE, String.valueOf(sourcePage))
+                                        .build().join()
+                        )
         );
 
         String customMessage = source.getDescription();
@@ -204,7 +156,7 @@ public class TelegramService {
     private void utilProcessSelectSourceNavigate(Long userTgId, String navigateTo, Integer messageId, int page) {
         if(navigateTo.equals(Emoji.RIGHT_ARROW.getCallback())){
             page++;
-        }else if(navigateTo.equals(Emoji.LEFT_ARROW.getCallback()) && page != 0){
+        } else if(navigateTo.equals(Emoji.LEFT_ARROW.getCallback()) && page != 0){
             page--;
         }
 
@@ -233,6 +185,14 @@ public class TelegramService {
 
         execute(new SendChatAction(chatId, action));
         execute(new SendMessage(chatId, message));
+    }
+
+    private void sendMessageWithKeyboard(long chatId, MessageDto dto){
+        ChatAction action = ChatAction.typing;
+        SendMessage sendMessage = new SendMessage(chatId, dto.getMessage()).replyMarkup(dto.getMarkup());
+
+        execute(new SendChatAction(chatId, action));
+        execute(sendMessage);
     }
 
     private void sendMessageWithKeyboard(long chatId, String message, InlineKeyboardMarkup markup) {
