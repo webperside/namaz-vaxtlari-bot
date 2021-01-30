@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,14 @@ public class TelegramListener {
     public void listener(){
         TelegramConfig.getInstance().setUpdatesListener(updates -> {
 
-            updates.forEach(update -> {
+            for (Update update : updates) {
                 try {
                     telegramService.process(update);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return update.updateId();
                 }
-            });
+            }
 
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });

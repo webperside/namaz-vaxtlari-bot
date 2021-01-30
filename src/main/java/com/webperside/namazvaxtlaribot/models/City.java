@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.List;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
@@ -31,4 +33,7 @@ public class City {
     @JoinColumn(name = "source_id", referencedColumnName = "source_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Source source;
+
+    @OneToMany(mappedBy = "city")
+    private List<CitySettlement> settlements;
 }

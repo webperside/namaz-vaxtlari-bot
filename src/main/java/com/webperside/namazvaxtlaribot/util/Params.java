@@ -1,4 +1,4 @@
-package com.webperside.namazvaxtlaribot.dto;
+package com.webperside.namazvaxtlaribot.util;
 
 import com.webperside.namazvaxtlaribot.config.Constants;
 
@@ -6,6 +6,7 @@ import java.util.*;
 
 public class Params {
 
+    private static final String EQUAL = "=";
     private final String main;
     private final Map<String, String> values;
 
@@ -30,7 +31,7 @@ public class Params {
         List<String> params = new ArrayList<>();
         params.add(main);
         for (Map.Entry<String,String> entry : values.entrySet()){
-            params.add(entry.getKey() + "=" + entry.getValue());
+            params.add(entry.getKey() + EQUAL + entry.getValue());
         }
         return String.join(Constants.PARAM_SEPARATOR, params);
     }
@@ -70,7 +71,7 @@ public class Params {
         }
 
         public Builder put(String pair){
-            String[] keyValue = pair.split("=");
+            String[] keyValue = pair.split(EQUAL);
             this.params.values.put(keyValue[0], keyValue[1]);
             return this;
         }
