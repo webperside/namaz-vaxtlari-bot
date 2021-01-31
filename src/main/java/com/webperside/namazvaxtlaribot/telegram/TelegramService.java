@@ -2,29 +2,25 @@ package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ChatAction;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendChatAction;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
-import com.webperside.namazvaxtlaribot.util.Params;
-import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
-import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.service.FileService;
-import com.webperside.namazvaxtlaribot.service.SourceService;
+import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.util.CommonUtil;
-import com.webperside.namazvaxtlaribot.util.MessageCreatorUtil;
+import com.webperside.namazvaxtlaribot.util.Params;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -42,9 +38,8 @@ public class TelegramService {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
     private final MessageSource messageSource;
     private final UserService userService;
-    private final SourceService sourceService;
     private final FileService fileService;
-    private final MessageCreatorUtil messageCreatorUtil;
+    private final MessageCreatorService messageCreatorService;
 
     // ...::: Telegram Updates handlers methods :::...
 
@@ -66,18 +61,26 @@ public class TelegramService {
     }
 
     private void processCallback(Update update){
+
         CallbackQuery query = update.callbackQuery();
         long userTgId = query.message().chat().id();
         int msgId = query.message().messageId();
-        String callback = query.data();
-        Params params = Params.split(callback);
+
+        Params params = Params.split(query.data());
         String main = params.getMain();
         Map<String, String> values = params.getValues();
 
+        // params
+        String navigateTo = values.getOrDefault(NAVIGATE_TO, null);
+        Integer sourcePage = Integer.parseInt(values.getOrDefault(SOURCE_PAGE, "0"));
+        Integer sourceId = Integer.valueOf(values.getOrDefault(SOURCE_ID,"0"));
+        Integer cityPage = Integer.parseInt(values.getOrDefault(CITY_PAGE,"0"));
+        Integer cityId = Integer.parseInt(values.getOrDefault(CITY_ID,"0"));
+        Integer citySettlementId = Integer.parseInt(values.getOrDefault(CITY_SETT_ID,"0"));
+
+
         switch (main) {
             case BUTTON_CB_SELECT_SOURCE: {
-                String navigateTo = values.get(NAVIGATE_TO);
-                Integer sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
                 if (navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)) {
                     utilProcessSelectSource(userTgId);
                 } else {
@@ -86,17 +89,10 @@ public class TelegramService {
                 break;
             }
             case BUTTON_CB_SELECT_SOURCE_DESCRIPTION: {
-                Integer sourceId = Integer.valueOf(values.get(SOURCE_ID));
-                Integer sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
                 utilProcessSelectSourceDescription(userTgId, sourceId, msgId, sourcePage);
                 break;
             }
             case BUTTON_CB_SELECT_CITY: {
-                String navigateTo = values.get(NAVIGATE_TO);
-                Integer cityPage = Integer.parseInt(values.get(CITY_PAGE));
-                Integer sourceId = Integer.parseInt(values.get(SOURCE_ID));
-                Integer sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
-
                 if (navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)) {
                     utilProcessSelectCity(userTgId, sourceId, sourcePage, msgId);
                 } else {
@@ -105,10 +101,6 @@ public class TelegramService {
                 break;
             }
             case BUTTON_CB_SELECT_CITY_DESCRIPTION: {
-                Integer cityId = Integer.parseInt(values.get(CITY_ID));
-                Integer cityPage = Integer.parseInt(values.get(CITY_PAGE));
-                Integer sourceId = Integer.parseInt(values.get(SOURCE_ID));
-                Integer sourcePage = Integer.parseInt(values.get(SOURCE_PAGE));
                 utilProcessSelectCityDescription(userTgId, cityId, cityPage, sourceId, sourcePage, msgId);
                 break;
             }
@@ -117,13 +109,7 @@ public class TelegramService {
                 break;
             }
             case BUTTON_CB_SELECT_CITY_SETT_CONFIRM: { // final endpoint
-                Integer citySettlementId = Integer.parseInt(values.get(CITY_SETT_ID));
-                String msg = messageCreatorUtil.selectCitySettlementConfirmCreator(
-                        getUserInfo(query.from()),
-                        userTgId,
-                        citySettlementId
-                );
-                sendMessage(userTgId, msg);
+                utilProcessSelectCitySettConfirm(userTgId, citySettlementId, query.from());
                 break;
             }
 
@@ -134,7 +120,7 @@ public class TelegramService {
 
     private void processTest(Update update){
         long chatId = update.message().chat().id();
-        MessageDto dto = messageCreatorUtil.testCreator();
+        MessageDto dto = messageCreatorService.testCreator();
         sendMessageWithKeyboard(chatId, dto);
     }
 
@@ -150,44 +136,52 @@ public class TelegramService {
         userService.save(String.valueOf(chatId));
 
         String from = getUserInfo(update.message().from());
-        MessageDto dto = messageCreatorUtil.startCreator(from);
+        MessageDto dto = messageCreatorService.startCreator(from);
         sendMessageWithKeyboard(chatId, dto);
     }
 
     private void utilProcessSelectSource(Long userTgId) {
-        MessageDto dto = messageCreatorUtil.selectSourceCreator(0);
+        MessageDto dto = messageCreatorService.selectSourceCreator(0);
         sendMessageWithKeyboard(userTgId, dto);
     }
 
     private void utilProcessSelectSourceDescription(Long userTgId, Integer sourceId, Integer messageId, int sourcePage){
-        MessageDto dto = messageCreatorUtil.selectSourceDescriptionCreator(sourceId, sourcePage);
+        MessageDto dto = messageCreatorService.selectSourceDescriptionCreator(sourceId, sourcePage);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
     private void utilProcessSelectSourceNavigate(Long userTgId, String navigateTo, Integer messageId, int page) {
         page = CommonUtil.getPageByValue(navigateTo, page);
 
-        MessageDto dto = messageCreatorUtil.selectSourceCreator(page);
+        MessageDto dto = messageCreatorService.selectSourceCreator(page);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
     private void utilProcessSelectCity(Long userTgId, Integer sourceId, Integer sourcePage, Integer messageId){
-        MessageDto dto = messageCreatorUtil.selectCityCreator(0,sourceId, sourcePage);
+        MessageDto dto = messageCreatorService.selectCityCreator(0,sourceId, sourcePage);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
     private void utilProcessSelectCityDescription(Long userTgId,Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage, Integer messageId){
-        MessageDto dto = messageCreatorUtil.selectCityDescriptionCreator(cityId, cityPage, sourceId, sourcePage);
+        MessageDto dto = messageCreatorService.selectCityDescriptionCreator(cityId, cityPage, sourceId, sourcePage);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
     private void utilProcessSelectCityNavigate(Long userTgId, String navigateTo, Integer cityPage, Integer sourceId, Integer sourcePage, Integer messageId){
         cityPage = CommonUtil.getPageByValue(navigateTo, cityPage);
 
-        MessageDto dto = messageCreatorUtil.selectCityCreator(cityPage, sourceId, sourcePage);
+        MessageDto dto = messageCreatorService.selectCityCreator(cityPage, sourceId, sourcePage);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
+    private void utilProcessSelectCitySettConfirm(Long userTgId, Integer citySettlementId, User user){
+        String msg = messageCreatorService.selectCitySettlementConfirmCreator(
+                getUserInfo(user),
+                userTgId,
+                citySettlementId
+        );
+        sendMessage(userTgId, msg);
+    }
     // ...::: Telegram Updates handlers methods :::...
 
     // ...::: Telegram Message send and edit methods :::...
@@ -227,7 +221,7 @@ public class TelegramService {
 
     // ...::: Telegram User Info methods :::...
 
-    private String getUserInfo(com.pengrad.telegrambot.model.User user) {
+    private String getUserInfo(User user) {
         String firstName = user.firstName();
         String lastName = user.lastName();
 
