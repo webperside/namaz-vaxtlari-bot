@@ -29,4 +29,9 @@ public class Settlement {
 
     @Column(name = "value", length = 50)
     private String value;
+
+    @ManyToOne
+    @JoinColumn(name="city_id", nullable=false)
+    private City city;
+
 }

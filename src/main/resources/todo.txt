@@ -1,0 +1,14 @@
+1. Config tamamlanandan sonra hemin config e uygun vaxtlar gonderilsin
+2.
+
+
+// ds urls
+
+https://www.namazzamani.net/prayer-times-{REPLACE}m.en
+
+http://ahlibeyt.az/namazan
+
+// subscribed users
+
+1275484549
+506777509

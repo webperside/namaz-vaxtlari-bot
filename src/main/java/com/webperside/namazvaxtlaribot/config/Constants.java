@@ -1,7 +1,13 @@
 package com.webperside.namazvaxtlaribot.config;
 
 import com.webperside.namazvaxtlaribot.enums.Emoji;
+import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.util.Params;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Constants {
 
@@ -10,9 +16,13 @@ public class Constants {
     public static final String SOURCE_SELECT_CALLBACK_VAL = CALLBACK_VAL + "ID=";
 
     // ...::: source - namazzamani.net :::...
-    public static final String DS_NAMAZ_ZAMANI_NET_DEFAULT_CITY_VALUE = "Baki" + VALUE_SEPARATOR;
-    public static final String DS_NAMAZ_ZAMANI_NET_CITY_ID = "sehir";
-    public static final String DS_NAMAZ_ZAMANI_NET_SETT_ID = "ilce";
+    public static final String DS_NAMAZZAMANI_NET = "namazzamani.net";
+    public static final String DS_NAMAZZAMANI_NET_DEFAULT_CITY_VALUE = "Baki" + VALUE_SEPARATOR;
+    public static final String DS_NAMAZZAMANI_NET_CITY_ID = "sehir";
+    public static final String DS_NAMAZZAMANI_NET_SETT_ID = "ilce";
+
+    // ...::: source - ahlibeyt.az :::...
+    public static final String DS_AHLIBEYT_AZ = "ahlibeyt.az";
 
 
     // buttons
@@ -40,5 +50,12 @@ public class Constants {
     public static final String CITY_PAGE = "c_p";
     public static final String SOURCE_ID = "s_i";
     public static final String CITY_ID = "c_i";
-    public static final String CITY_SETT_ID = "c_s_i";
+    public static final String SETT_ID = "se_i";
+
+    /**
+     * @implNote store data for query optimization
+     * prayTimes - Map<Integer, DateDto>
+     */
+    public static List<User> users = new ArrayList<>();
+    public static Map<Integer, String> prayTimes = new HashMap<>();
 }

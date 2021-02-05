@@ -34,6 +34,6 @@ public class City {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Source source;
 
-    @OneToMany(mappedBy = "city")
-    private List<CitySettlement> settlements;
+    @OneToMany(mappedBy="city")
+    private List<Settlement> settlements;
 }

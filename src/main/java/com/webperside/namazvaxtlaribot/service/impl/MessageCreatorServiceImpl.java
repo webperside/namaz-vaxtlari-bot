@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.models.City;
-import com.webperside.namazvaxtlaribot.models.CitySettlement;
+import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.service.*;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,9 +32,10 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private final UserService userService;
     private final SourceService sourceService;
     private final CityService cityService;
-    private final CitySettlementService citySettlementService;
+    private final SettlementService settlementService;
     private final MessageSource messageSource;
 
+    // test methods
     @Override
     public MessageDto testCreator() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
@@ -50,6 +52,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return MessageDto.builder().message("test").markup(markup).build();
     }
 
+    // start and registration methods
     @Override
     public MessageDto startCreator(String from) {
         String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
@@ -203,11 +206,12 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 .build();
     }
 
+    @Transactional
     @Override
     public MessageDto selectCityDescriptionCreator(Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage){
         City city = cityService.getCityById(cityId);
-        List<CitySettlement> citySettlements = city.getSettlements();
-        int size = citySettlements.size();
+        List<Settlement> settlements = city.getSettlements();
+        int size = settlements.size();
         List<InlineKeyboardButton> navButtons = new ArrayList<>();
 
         navButtons.add(new InlineKeyboardButton(BUTTON_T_BACK_TO_SELECT_CITY_MENU)
@@ -224,26 +228,57 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         if (size == 1) {
             // {  desc city  }
             // [back][confirm]
-            return subProcessIfCityHasNoSettlements(citySettlements.get(0), navButtons);
+            return subProcessIfCityHasNoSettlements(settlements.get(0), navButtons);
         } else {
             // {  desc city  }
             // [item1] [item2]
             // [item3] [item4]
             // [prev ] [next ] - not yet
             // [ back to s_c ]
-            MessageDto dto = subProcessIfCityHasSettlements(citySettlements, size, cityPage, sourceId, sourcePage);
+            MessageDto dto = subProcessIfCityHasSettlements(settlements, size, cityPage, sourceId, sourcePage);
             dto.getMarkup().addRow(navButtons.toArray(new InlineKeyboardButton[0]));
             return dto;
         }
     }
 
+    @Transactional
     @Override
-    public String selectCitySettlementConfirmCreator(String from, long userTgId, Integer citySettlementId) {
+    public MessageDto selectCitySettlementDescriptionCreator(Integer settlementId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage) {
+        Settlement settlement = settlementService.getById(settlementId);
+        String display = settlement.getCity().getName() + "/" + settlement.getName();
+
+        String msg = messageSource.getMessage("telegram.select_city.city_sett_confirm",
+                new Object[]{display},
+                Locale.getDefault());
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+                new InlineKeyboardButton(BUTTON_T_BACK_TO_SELECT_CITY_MENU)
+                        .callbackData(
+                                Params.builderWith(BUTTON_CB_SELECT_CITY)
+                                        .put(NAVIGATE_TO, BUTTON_CB_NAV_EMPTY)
+                                        .put(CITY_PAGE, String.valueOf(cityPage))
+                                        .put(SOURCE_ID, String.valueOf(sourceId))
+                                        .put(SOURCE_PAGE, String.valueOf(sourcePage))
+                                        .build().join()
+                        ),
+                new InlineKeyboardButton(BUTTON_T_CONFIRM)
+                        .callbackData(
+                                Params.builderWith(BUTTON_CB_SELECT_CITY_SETT_CONFIRM)
+                                        .put(SETT_ID, String.valueOf(settlement.getId()))
+                                        .build().join()
+                        )
+        );
+
+        return MessageDto.builder().message(msg).markup(markup).build();
+    }
+
+    @Override
+    public String selectCitySettlementConfirmCreator(String from, long userTgId, Integer settlementId) {
 
         User user = userService.getByTgId(String.valueOf(userTgId));
-        CitySettlement citySettlement = citySettlementService.getById(citySettlementId);
+        Settlement settlement = settlementService.getById(settlementId);
 
-        user.setCitySettlement(citySettlement);
+        user.setSettlement(settlement);
 
         userService.update(user);
 
@@ -252,18 +287,24 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 Locale.getDefault());
     }
 
+    // start and registration methods
+
+    //
+
+
+
     // private util methods
 
-    private MessageDto subProcessIfCityHasNoSettlements(CitySettlement cs,
+    private MessageDto subProcessIfCityHasNoSettlements(Settlement settlement,
                                                         List<InlineKeyboardButton> navButtons) {
         String msg = messageSource.getMessage("telegram.select_city.city_sett_confirm",
-                new Object[]{cs.getCity().getName()},
+                new Object[]{settlement.getName()},
                 Locale.getDefault());
 
         navButtons.add(new InlineKeyboardButton(BUTTON_T_CONFIRM)
                 .callbackData(
                         Params.builderWith(BUTTON_CB_SELECT_CITY_SETT_CONFIRM)
-                                .put(CITY_SETT_ID, String.valueOf(cs.getId()))
+                                .put(SETT_ID, String.valueOf(settlement.getId()))
                                 .build().join()
                 ));
 
@@ -272,7 +313,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return MessageDto.builder().message(msg).markup(markup).build();
     }
 
-    private MessageDto subProcessIfCityHasSettlements(List<CitySettlement> citySettlements,
+    private MessageDto subProcessIfCityHasSettlements(List<Settlement> settlements,
                                                       int size,
                                                       Integer cityPage,
                                                       Integer sourceId,
@@ -282,13 +323,13 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         for (int i = 0; i < size; i += 2) {
             List<InlineKeyboardButton> buttons = new ArrayList<>(2);
 
-            CitySettlement item1 = citySettlements.get(i);
+            Settlement item1 = settlements.get(i);
 
             buttons.add(
-                    new InlineKeyboardButton(item1.getSettlement().getName())
+                    new InlineKeyboardButton(item1.getName())
                             .callbackData(
                                     Params.builderWith(BUTTON_CB_SELECT_CITY_SETT_DESCRIPTION)
-                                            .put(CITY_SETT_ID, String.valueOf(item1.getId()))
+                                            .put(SETT_ID, String.valueOf(item1.getId()))
                                             .put(CITY_ID, String.valueOf(item1.getCity().getId()))
                                             .put(CITY_PAGE, String.valueOf(cityPage))
                                             .put(SOURCE_ID, String.valueOf(sourceId))
@@ -298,12 +339,12 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
             );
 
             if (i + 1 < size) {
-                CitySettlement item2 = citySettlements.get(i + 1);
+                Settlement item2 = settlements.get(i + 1);
                 buttons.add(
-                        new InlineKeyboardButton(item2.getSettlement().getName())
+                        new InlineKeyboardButton(item2.getName())
                                 .callbackData(
                                         Params.builderWith(BUTTON_CB_SELECT_CITY_SETT_DESCRIPTION)
-                                                .put(CITY_SETT_ID, String.valueOf(item2.getId()))
+                                                .put(SETT_ID, String.valueOf(item2.getId()))
                                                 .put(CITY_ID, String.valueOf(item2.getCity().getId()))
                                                 .put(CITY_PAGE, String.valueOf(cityPage))
                                                 .put(SOURCE_ID, String.valueOf(sourceId))

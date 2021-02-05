@@ -1,16 +1,18 @@
 package com.webperside.namazvaxtlaribot;
 
 import com.gargoylesoftware.htmlunit.html.*;
+import com.pengrad.telegrambot.request.GetChat;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetChatResponse;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.models.City;
-import com.webperside.namazvaxtlaribot.models.CitySettlement;
 import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.CityRepository;
-import com.webperside.namazvaxtlaribot.repository.CitySettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
+import com.webperside.namazvaxtlaribot.telegram.TelegramConfig;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +32,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     private final CityRepository cityRepository;
     private final SettlementRepository settlementRepository;
-    private final CitySettlementRepository citySettlementRepository;
     private final WebscrapService webscrapService;
     private final SourceRepository sourceRepository;
 
@@ -42,13 +43,20 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+//        TelegramConfig.execute(new SendMessage("506777509",
+//                "Salam. Istifadeniz uchun teshekkur edirik. Yaxin zamanda bot tamamile hazir olduqda size bildirim gelecekdir.\n" +
+//                        "Teshekkurler !"));
+//        GetChatResponse response = TelegramConfig.execute(new GetChat("506777509"));
+//        System.out.println(response.chat().firstName());
+//        getCitiesAndSave();
+//        getSettlementsAndSave();
+
+//        saveDefaultSettlement();
 //        saveCities();
 //        testMethod();
 //        LocalDateTime localDateTime = LocalDateTime.now();
 //
 //        System.out.println(localDateTime);
-//        getCitiesAndSave();
-//        getSettlementsAndSave();
 //		apiService.get();
 		listener.listener();
     }
@@ -59,7 +67,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     public void saveCities(){
         Source source = sourceRepository.findById(2).orElse(null);
-        Settlement defaultSettlement = settlementRepository.findById(1).orElse(null);
         List<City> cities = new ArrayList<>();
 
         cities.add(City.builder().name("Ağdam").value("11").source(source).build());
@@ -81,13 +88,13 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
         cities = cityRepository.saveAll(cities);
 
-        List<CitySettlement> citySettlements = new ArrayList<>();
+        List<Settlement> settlements = new ArrayList<>();
 
         for (City city : cities) {
-            citySettlements.add(CitySettlement.builder().settlement(defaultSettlement).city(city).build());
+            settlements.add(Settlement.builder().name(city.getName()).value(city.getValue()).city(city).build());
         }
 
-        citySettlementRepository.saveAll(citySettlements);
+        settlementRepository.saveAll(settlements);
 
     }
 
@@ -119,14 +126,12 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     public void getSettlementsAndSave() throws IOException{
     	List<City> cities = cityRepository.findAll();
-        Settlement defaultSettlement = settlementRepository.findById(1).orElse(null);
         Source source = sourceRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Source not found"));
 
         for(City city : cities){
-            String params = city.getValue() + Constants.VALUE_SEPARATOR;
-            String url = source.getUrl().replace("{REPLACE}",params);
+            String url = source.getUrl().replace("{REPLACE}",city.getValue());
 
-            DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZ_ZAMANI_NET_SETT_ID);
+            DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZZAMANI_NET_SETT_ID);
 
             if(element instanceof HtmlSelect){
                 HtmlSelect selectElement = (HtmlSelect) element;
@@ -135,10 +140,11 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
                 List<Settlement> settlements = new ArrayList<>();
 
                 if(options.size() == 2){
-                    citySettlementRepository.save(
-                            CitySettlement.builder()
+                    settlementRepository.save(
+                            Settlement.builder()
+                                    .name(city.getName())
+                                    .value(city.getValue())
                                     .city(city)
-                                    .settlement(defaultSettlement)
                                     .build()
                     );
                     continue;
@@ -152,24 +158,12 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
                             Settlement.builder()
                                     .name(name)
                                     .value(value)
+                                    .city(city)
                                     .build()
                     );
                 }
 
                 settlementRepository.saveAll(settlements);
-
-                List<CitySettlement> citySettlements = new ArrayList<>();
-
-                for(Settlement settlement : settlements){
-                    citySettlements.add(
-                            CitySettlement.builder()
-                                    .city(city)
-                                    .settlement(settlement)
-                                    .build()
-                    );
-                }
-
-                citySettlementRepository.saveAll(citySettlements);
             }
         }
     	
@@ -178,10 +172,10 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     public void getCitiesAndSave() throws IOException {
         Source source = sourceRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Source not found"));
 
-        String params = Constants.DS_NAMAZ_ZAMANI_NET_DEFAULT_CITY_VALUE;
+        String params = Constants.DS_NAMAZZAMANI_NET_DEFAULT_CITY_VALUE;
         String url = source.getUrl().replace("{REPLACE}", params);
 
-        DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZ_ZAMANI_NET_CITY_ID);
+        DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZZAMANI_NET_CITY_ID);
 
         if (element instanceof HtmlSelect) {
             HtmlSelect selectElement = (HtmlSelect) element;

@@ -16,5 +16,7 @@ public interface MessageCreatorService {
 
     MessageDto selectCityDescriptionCreator(Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage);
 
+    MessageDto selectCitySettlementDescriptionCreator(Integer citySettlementId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage);
+
     String selectCitySettlementConfirmCreator(String from, long userTgId, Integer citySettlementId);
 }

@@ -20,6 +20,7 @@ public class TelegramListener {
                 try {
                     telegramService.process(update);
                 } catch (IOException e) {
+                    System.out.println(update);
                     e.printStackTrace();
                     return update.updateId();
                 }

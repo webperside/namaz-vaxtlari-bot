@@ -25,8 +25,8 @@ public class User {
     @Column(name = "user_tg_id", length = 50)
     private String userTgId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "city_settlement_id", referencedColumnName = "city_settlement_id")
-    private CitySettlement citySettlement;
+    @ManyToOne
+    @JoinColumn(name="settlement_id")
+    private Settlement settlement;
 
 }

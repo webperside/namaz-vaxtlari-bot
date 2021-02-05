@@ -5,10 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.request.AnswerCallbackQuery;
-import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.SendChatAction;
-import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.*;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
 import com.webperside.namazvaxtlaribot.service.FileService;
@@ -76,13 +73,13 @@ public class TelegramService {
         Integer sourceId = Integer.valueOf(values.getOrDefault(SOURCE_ID,"0"));
         Integer cityPage = Integer.parseInt(values.getOrDefault(CITY_PAGE,"0"));
         Integer cityId = Integer.parseInt(values.getOrDefault(CITY_ID,"0"));
-        Integer citySettlementId = Integer.parseInt(values.getOrDefault(CITY_SETT_ID,"0"));
+        Integer settlementId = Integer.parseInt(values.getOrDefault(SETT_ID,"0"));
 
 
         switch (main) {
             case BUTTON_CB_SELECT_SOURCE: {
                 if (navigateTo.equals(BUTTON_CB_NAV_FIRST_LOAD)) {
-                    utilProcessSelectSource(userTgId);
+                    utilProcessSelectSource(userTgId, msgId);
                 } else {
                     utilProcessSelectSourceNavigate(userTgId, navigateTo, msgId, sourcePage);
                 }
@@ -105,11 +102,11 @@ public class TelegramService {
                 break;
             }
             case BUTTON_CB_SELECT_CITY_SETT_DESCRIPTION: { // if city has settlements
-
+                utilProcessSelectCitySettDescription(userTgId, settlementId, cityId, cityPage, sourceId, sourcePage, msgId);
                 break;
             }
             case BUTTON_CB_SELECT_CITY_SETT_CONFIRM: { // final endpoint
-                utilProcessSelectCitySettConfirm(userTgId, citySettlementId, query.from());
+                utilProcessSelectCitySettConfirm(userTgId, settlementId, query.from(), msgId);
                 break;
             }
 
@@ -140,9 +137,10 @@ public class TelegramService {
         sendMessageWithKeyboard(chatId, dto);
     }
 
-    private void utilProcessSelectSource(Long userTgId) {
+    private void utilProcessSelectSource(Long userTgId, Integer msgId) {
         MessageDto dto = messageCreatorService.selectSourceCreator(0);
-        sendMessageWithKeyboard(userTgId, dto);
+        editMessageWithKeyboard(userTgId, dto, msgId);
+//        sendMessageWithKeyboard(userTgId, dto);
     }
 
     private void utilProcessSelectSourceDescription(Long userTgId, Integer sourceId, Integer messageId, int sourcePage){
@@ -162,7 +160,7 @@ public class TelegramService {
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
-    private void utilProcessSelectCityDescription(Long userTgId,Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage, Integer messageId){
+    private void utilProcessSelectCityDescription(Long userTgId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage, Integer messageId){
         MessageDto dto = messageCreatorService.selectCityDescriptionCreator(cityId, cityPage, sourceId, sourcePage);
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
@@ -174,7 +172,14 @@ public class TelegramService {
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
-    private void utilProcessSelectCitySettConfirm(Long userTgId, Integer citySettlementId, User user){
+    private void utilProcessSelectCitySettDescription(Long userTgId, Integer citySettlementId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage, Integer messageId){
+        MessageDto dto = messageCreatorService.selectCitySettlementDescriptionCreator(citySettlementId, cityId, cityPage, sourceId, sourcePage);
+        editMessageWithKeyboard(userTgId, dto, messageId);
+    }
+
+    private void utilProcessSelectCitySettConfirm(Long userTgId, Integer citySettlementId, User user, Integer msgId){
+        deleteMessage(userTgId, msgId);
+
         String msg = messageCreatorService.selectCitySettlementConfirmCreator(
                 getUserInfo(user),
                 userTgId,
@@ -184,7 +189,7 @@ public class TelegramService {
     }
     // ...::: Telegram Updates handlers methods :::...
 
-    // ...::: Telegram Message send and edit methods :::...
+    // ...::: Telegram Message send, edit, delete methods :::...
 
     private void sendMessage(long chatId, String message) {
         ChatAction action = ChatAction.typing;
@@ -215,6 +220,10 @@ public class TelegramService {
 
     private void editMessageWithKeyboard(long chatId, MessageDto dto, int messageId){
         execute(new EditMessageText(chatId, messageId, dto.getMessage()).replyMarkup(dto.getMarkup()));
+    }
+
+    private void deleteMessage(long chatId, int messageId){
+        execute(new DeleteMessage(chatId, messageId));
     }
 
     // ...::: Telegram Message send and edit methods :::...
