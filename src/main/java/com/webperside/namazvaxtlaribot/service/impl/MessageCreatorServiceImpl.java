@@ -1,8 +1,10 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
+import com.gargoylesoftware.htmlunit.html.*;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
+import com.webperside.namazvaxtlaribot.dto.PrayTimeDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.Settlement;
@@ -17,6 +19,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +40,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private final CityService cityService;
     private final SettlementService settlementService;
     private final MessageSource messageSource;
+    private final WebscrapService webscrapService;
 
     // test methods
     @Override
@@ -291,7 +298,34 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     //
 
+    @Override
+    @Transactional
+    public MessageDto sendPrayTimeCreator(Settlement settlement, Integer settlementId) {
 
+        if(settlement == null){
+            settlement = settlementService.getById(settlementId);
+        }
+
+//        System.out.println(prayTimes.containsKey(settlement));
+//        System.out.println(prayTimes.size());
+
+        if(!prayTimes.containsKey(settlement.getId())){
+            System.out.println("REQUEST START");
+            subProcessIfTimeNotExists(settlement);
+        }
+
+        PrayTimeDto dto = prayTimes.get(settlement.getId());
+
+        // namazzamani net
+
+        String msg = messageSource.getMessage("telegram.pray_time_namazzamani_net",
+                formatTimeForNamazZamaniNet(dto),
+                Locale.getDefault());
+
+        return MessageDto.builder().message(msg).build();
+    }
+
+    //
 
     // private util methods
 
@@ -357,6 +391,63 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
             markup.addRow(buttons.toArray(new InlineKeyboardButton[0]));
         }
         return MessageDto.builder().message(msg).markup(markup).build();
+    }
+
+    private void subProcessIfTimeNotExists(Settlement settlement){
+        PrayTimeDto ptd = new PrayTimeDto();
+        Source source = settlement.getCity().getSource();
+        String sourceName = source.getName();
+        if(sourceName.equals(DS_NAMAZZAMANI_NET)){
+            String params = settlement.getValue();
+            String url = source.getUrl().replace(DS_NAMAZZAMANI_NET_REPLACE,params);
+            ptd = ifSourceIsNamazZamaniNet(url);
+        } else if(sourceName.equals(DS_AHLIBEYT_AZ)){
+
+        }
+
+        prayTimes.put(settlement.getId(), ptd);
+    }
+
+    private Object[] formatTimeForNamazZamaniNet(PrayTimeDto dto){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+//        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+
+        return new Object[]{
+                formatter.format(dto.getImsak()),
+                formatter.format(dto.getGunChixir()),
+                formatter.format(dto.getZohr()),
+                formatter.format(dto.getEsr()),
+                formatter.format(dto.getMegrib()),
+                formatter.format(dto.getIsha())
+        };
+    }
+
+    private PrayTimeDto ifSourceIsNamazZamaniNet(String url){
+        try {
+            DomElement dom = webscrapService.scrapById(url, "timeScale");
+            if(dom instanceof HtmlDivision){
+                HtmlDivision div = (HtmlDivision) dom;
+
+                DomNodeList<HtmlElement> list = div.getElementsByTagName("ul");
+
+                PrayTimeDto prayTime = new PrayTimeDto();
+
+                for(HtmlElement element : list){
+                    DomElement d = element.getLastElementChild();
+
+                    if(d instanceof HtmlListItem){
+                        HtmlListItem li = (HtmlListItem) d;
+                        prayTime.addForNamazZamaniNet(li.getId(), li.asText());
+                    }
+
+                }
+
+                return prayTime;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {

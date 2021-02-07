@@ -21,7 +21,7 @@ public class TelegramListener {
                 TelegramConfig.execute(new SendMessage("625929111",String.valueOf(update.message().from().id())));
                 TelegramConfig.execute(new SendMessage(update.message().from().id(),"Istifadeniz uchun teshekkurler !!!"));
 //                try {
-////                    telegramService.process(update);
+//                    telegramService.process(update);
 //                } catch (IOException e) {
 //                    System.out.println(update);
 //                    e.printStackTrace();

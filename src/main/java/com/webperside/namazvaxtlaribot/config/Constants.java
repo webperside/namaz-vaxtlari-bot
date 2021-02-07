@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.config;
 
+import com.webperside.namazvaxtlaribot.dto.PrayTimeDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.util.Params;
@@ -20,6 +21,7 @@ public class Constants {
     public static final String DS_NAMAZZAMANI_NET_DEFAULT_CITY_VALUE = "Baki" + VALUE_SEPARATOR;
     public static final String DS_NAMAZZAMANI_NET_CITY_ID = "sehir";
     public static final String DS_NAMAZZAMANI_NET_SETT_ID = "ilce";
+    public static final String DS_NAMAZZAMANI_NET_REPLACE = "{REPLACE}";
 
     // ...::: source - ahlibeyt.az :::...
     public static final String DS_AHLIBEYT_AZ = "ahlibeyt.az";
@@ -53,9 +55,11 @@ public class Constants {
     public static final String SETT_ID = "se_i";
 
     /**
+     * @see User
+     * @see PrayTimeDto
      * @implNote store data for query optimization
-     * prayTimes - Map<Integer, DateDto>
+     * prayTimes - Map<Integer, PrayTimeDto>
      */
     public static List<User> users = new ArrayList<>();
-    public static Map<Integer, String> prayTimes = new HashMap<>();
+    public static Map<Integer, PrayTimeDto> prayTimes = new HashMap<>();
 }

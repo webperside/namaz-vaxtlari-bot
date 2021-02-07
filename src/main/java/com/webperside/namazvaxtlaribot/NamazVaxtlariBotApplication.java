@@ -1,9 +1,6 @@
 package com.webperside.namazvaxtlaribot;
 
 import com.gargoylesoftware.htmlunit.html.*;
-import com.pengrad.telegrambot.request.GetChat;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.GetChatResponse;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.Settlement;
@@ -11,19 +8,27 @@ import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.CityRepository;
 import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
+import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
+import com.webperside.namazvaxtlaribot.service.SettlementService;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
-import com.webperside.namazvaxtlaribot.telegram.TelegramConfig;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.w3c.dom.html.HTMLDivElement;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_REPLACE;
+import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -34,6 +39,8 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     private final SettlementRepository settlementRepository;
     private final WebscrapService webscrapService;
     private final SourceRepository sourceRepository;
+    private final SettlementService settlementService;
+    private final MessageCreatorService messageCreatorService;
 
     private final TelegramListener listener;
 
@@ -42,7 +49,44 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        String test = "06:11";
+//        String[] t = test.split(":");
+//        int i = Integer.parseInt(t[0]);
+//        System.out.println(i);
+//        Calendar now = Calendar.getInstance();
+//        now.set(Calendar.HOUR, Integer.parseInt(t[0]));
+//        now.set(Calendar.MINUTE, Integer.parseInt(t[1]));
+//        now.set(Calendar.SECOND, 0);
+//
+//        System.out.println(sdf.format(now.getTime()));
+//        Settlement settlement = settlementService.getById(2);
+//        DomElement dom = webscrapService.scrapById(url, "timeScale");
+//
+//        if(dom instanceof HtmlDivision){
+//            HtmlDivision div = (HtmlDivision) dom;
+//
+//            DomNodeList<HtmlElement> list = div.getElementsByTagName("ul");
+//
+//            for(HtmlElement element : list){
+//                DomElement d = element.getLastElementChild();
+//
+//                if(d instanceof HtmlListItem){
+//                    HtmlListItem li = (HtmlListItem) d;
+//                    System.out.println(li.asText());
+//                }
+//
+//            }
+//        }
+
+
+
+//        messageCreatorService.sendPrayTimeCreator(settlement);
+
+//        System.out.println(settlement.getCity().getName());
+//        System.out.println(settlement.getCity().getSource().getName());
 //        TelegramConfig.execute(new SendMessage("506777509",
 //                "Salam. Istifadeniz uchun teshekkur edirik. Yaxin zamanda bot tamamile hazir olduqda size bildirim gelecekdir.\n" +
 //                        "Teshekkurler !"));
@@ -131,7 +175,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
         for(City city : cities){
             String url = source.getUrl().replace("{REPLACE}",city.getValue());
 
-            DomElement element = webscrapService.scrapById(url, Constants.DS_NAMAZZAMANI_NET_SETT_ID);
+            DomElement element = webscrapService.scrapById(url, DS_NAMAZZAMANI_NET_SETT_ID);
 
             if(element instanceof HtmlSelect){
                 HtmlSelect selectElement = (HtmlSelect) element;

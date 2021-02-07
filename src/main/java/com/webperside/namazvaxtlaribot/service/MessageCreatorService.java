@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.service;
 
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
+import com.webperside.namazvaxtlaribot.models.Settlement;
 
 public interface MessageCreatorService {
 
@@ -19,4 +20,6 @@ public interface MessageCreatorService {
     MessageDto selectCitySettlementDescriptionCreator(Integer citySettlementId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage);
 
     String selectCitySettlementConfirmCreator(String from, long userTgId, Integer citySettlementId);
+
+    MessageDto sendPrayTimeCreator(Settlement settlement, Integer settlementId);
 }

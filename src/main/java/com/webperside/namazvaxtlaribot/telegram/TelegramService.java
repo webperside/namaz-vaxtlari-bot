@@ -177,15 +177,19 @@ public class TelegramService {
         editMessageWithKeyboard(userTgId, dto, messageId);
     }
 
-    private void utilProcessSelectCitySettConfirm(Long userTgId, Integer citySettlementId, User user, Integer msgId){
+    private void utilProcessSelectCitySettConfirm(Long userTgId, Integer settlementId, User user, Integer msgId){
         deleteMessage(userTgId, msgId);
 
         String msg = messageCreatorService.selectCitySettlementConfirmCreator(
                 getUserInfo(user),
                 userTgId,
-                citySettlementId
+                settlementId
         );
         sendMessage(userTgId, msg);
+
+        MessageDto dto = messageCreatorService.sendPrayTimeCreator(null, settlementId);
+
+        sendMessage(userTgId, dto.getMessage());
     }
     // ...::: Telegram Updates handlers methods :::...
 
