@@ -306,11 +306,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
             settlement = settlementService.getById(settlementId);
         }
 
-//        System.out.println(prayTimes.containsKey(settlement));
-//        System.out.println(prayTimes.size());
-
         if(!prayTimes.containsKey(settlement.getId())){
-            System.out.println("REQUEST START");
             subProcessIfTimeNotExists(settlement);
         }
 
@@ -319,7 +315,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         // namazzamani net
 
         String msg = messageSource.getMessage("telegram.pray_time_namazzamani_net",
-                formatTimeForNamazZamaniNet(dto),
+                paramsForNamazZamaniNet(settlement, dto),
                 Locale.getDefault());
 
         return MessageDto.builder().message(msg).build();
@@ -408,17 +404,19 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         prayTimes.put(settlement.getId(), ptd);
     }
 
-    private Object[] formatTimeForNamazZamaniNet(PrayTimeDto dto){
+    private Object[] paramsForNamazZamaniNet(Settlement settlement, PrayTimeDto dto){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 //        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 
         return new Object[]{
+                settlement.getName(),
                 formatter.format(dto.getImsak()),
                 formatter.format(dto.getGunChixir()),
                 formatter.format(dto.getZohr()),
                 formatter.format(dto.getEsr()),
                 formatter.format(dto.getMegrib()),
-                formatter.format(dto.getIsha())
+                formatter.format(dto.getIsha()),
+                settlement.getCity().getSource().getName()
         };
     }
 
