@@ -1,6 +1,8 @@
 package com.webperside.namazvaxtlaribot;
 
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.HtmlOption;
+import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.Settlement;
@@ -17,17 +19,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.w3c.dom.html.HTMLDivElement;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_REPLACE;
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
 
 @SpringBootApplication
@@ -51,6 +49,12 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+//        Thread.sleep(10000);
+//        LocalDate ld = LocalDate.now();
+//        int dayOfMonthPlus1 = ld.getDayOfMonth() + 1; // first row is a header
+//        PrayTimeDto ptd = ahlibeytAzTimes.get(dayOfMonthPlus1);
+//        System.out.println(ptd);
+//        testMethod();
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //        String test = "06:11";
 //        String[] t = test.split(":");
@@ -143,25 +147,43 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     }
 
     public void testMethod() throws IOException{
-        String url = "http://ahlibeyt.az/namazan";
-        DomElement element = webscrapService.scrapById(url, "table-center");
+//        String url = "http://ahlibeyt.az/namazan";
+//        DomElement element = webscrapService.scrapById(url, "table-center");
+//
+////        System.out.println(element.asText());
+//
+//
+//        List<DomElement> element2 = element.getByXPath("//table[@class='namaz']");
+//
+//        HtmlTable table = (HtmlTable) element2.get(0);
+//        List<HtmlTableRow> rows = table.getRows();
+//
+//        for(int i = 1 ; i < rows.size() ; i++){
+//            HtmlTableRow row = rows.get(i);
+//            List<HtmlTableCell> cells = row.getCells();
+//            for(int j = 0 ; j < cells.size() ; j++){
+//                HtmlTableCell cell = cells.get(j);
+//                System.out.print(cell.asText() + " ");
+//            }
+//            System.out.println();
+//        }
 
-//        System.out.println(element.asText());
+//        table.getRows().forEach(htmlTableRow -> {
+//            htmlTableRow.getCells().forEach(cell -> {
+//                System.out.println(cell.asText());
+//            });
+//            System.out.println("------");
+//        });
 
-
-        List<DomElement> element2 = element.getByXPath("//table[@class='namaz']");
-
-        HtmlTable table = (HtmlTable) element2.get(0);
-
-        HtmlTableBody body = table.getBodies().get(0);
-
-        body.getChildElements().forEach(domElement -> {
-            HtmlTableRow row = (HtmlTableRow) domElement;
-            row.getCells().forEach(cell -> {
-                System.out.println(cell.asText());
-            });
-//            System.out.println(cell.asText());
-        });
+//        body.getChildElements().forEach(domElement -> {
+//            HtmlTableRow row = (HtmlTableRow) domElement;
+//            row.getCells().forEach(cell -> {
+//                System.out.println(cell.getChildElementCount());
+////                System.out.println(cell.getClass());
+////                System.out.println(cell.asText());
+//            });
+////            System.out.println(cell.asText());
+//        });
 
 //        System.out.println(body.getDefaultStyleDisplay().value());
 

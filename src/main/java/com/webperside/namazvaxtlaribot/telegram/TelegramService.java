@@ -5,7 +5,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.*;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
@@ -49,6 +48,8 @@ public class TelegramService {
 
             if (TelegramCommand.TEST.getCommand().equals(text)) {
                 processTest(update);
+            } else if(TelegramCommand.VAXTLAR.getCommand().equals(text)){
+                processVaxtlar(update);
             } else if (TelegramCommand.START.getCommand().equals(text)) {
                 processStart(update);
             } else {
@@ -138,6 +139,12 @@ public class TelegramService {
         sendMessageWithKeyboard(chatId, dto);
     }
 
+    private void processVaxtlar(Update update){
+        long chatId = update.message().chat().id();
+        MessageDto dto = messageCreatorService.prayTimeByUserIdCreator(chatId);
+        sendMessage(chatId, dto.getMessage());
+    }
+
     private void utilProcessSelectSource(Long userTgId, Integer msgId) {
         MessageDto dto = messageCreatorService.selectSourceCreator(0);
         editMessageWithKeyboard(userTgId, dto, msgId);
@@ -188,7 +195,11 @@ public class TelegramService {
         );
         sendMessage(userTgId, msg);
 
-        MessageDto dto = messageCreatorService.sendPrayTimeCreator(null, settlementId);
+        String waitMessage = messageSource.getMessage("telegram.complete_configuration.after",null, Locale.getDefault());
+
+        sendMessage(userTgId, waitMessage);
+
+        MessageDto dto = messageCreatorService.prayTimeCreator(null, settlementId);
 
         sendMessage(userTgId, dto.getMessage());
     }

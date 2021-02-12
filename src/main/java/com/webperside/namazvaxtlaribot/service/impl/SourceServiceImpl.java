@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 
 @Service
@@ -24,5 +25,10 @@ public class SourceServiceImpl implements SourceService {
     @Override
     public Optional<Source> findById(Integer sourceId) {
         return sourceRepository.findById(sourceId);
+    }
+
+    @Override
+    public Source findByName(String name) {
+        return sourceRepository.findByName(name).orElseThrow(EntityNotFoundException::new);
     }
 }

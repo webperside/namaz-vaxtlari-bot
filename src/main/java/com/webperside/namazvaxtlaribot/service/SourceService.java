@@ -11,4 +11,6 @@ public interface SourceService {
     Page<Source> getAll(Integer page);
 
     Optional<Source> findById(Integer sourceId);
+
+    Source findByName(String name);
 }

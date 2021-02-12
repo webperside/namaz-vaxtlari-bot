@@ -20,44 +20,14 @@ public class ScheduledTasks {
 
     private static final long HOUR = 360000;
     private static final long MINUTE = 60000;
+    private static final long DAY = HOUR * 24;
+    private static final String MONTH_CRON = "0 0 2 1 1/1 *";
     private static final long TEST = 5000;
-
-//    private final APIService apiService;
-//    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
-//    private final TelegramService telegramService;
 
     private final TaskService taskService;
 
-//    @Scheduled(initialDelay = TEST,fixedDelay = TEST)
-//    public void sendPrayTimesTask(){
-//        for(User user : Constants.users){
-//            taskService.sendPrayTimes(user);
-//        }
-//    }
-
-//    @Scheduled(fixedDelay = HOUR)
-//    public void storeUserData(){
-//        taskService.storeUserData();
-//    }
-
-
-//    @Scheduled(cron = "0 0 23 * * ?")
-//    public void getDates() {
-//        if (dates.size() == 0) {
-//            apiService.get();
-//        }
-//    }
-//
-//    @Scheduled(cron = "0 50 23 * * ?")
-//    public void removeDate() {
-//        String key = SIMPLE_DATE_FORMAT.format(new Date());
-//        dates.remove(key);
-//    }
-//
-//
-//    @Scheduled(initialDelay = 60000,fixedDelay = 60000)
-//    public void sendDate() {
-//        String key = SIMPLE_DATE_FORMAT.format(new Date());
-//        telegramService.sendDate(key, dates.get(key));
-//    }
+    @Scheduled(cron = MONTH_CRON)
+    public void jobGetPrayTimeAhlibeytAz(){// monthly
+        taskService.getPrayTimesFromAhlibeytAz();
+    }
 }
