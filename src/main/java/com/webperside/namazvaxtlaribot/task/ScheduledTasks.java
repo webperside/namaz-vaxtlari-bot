@@ -30,4 +30,7 @@ public class ScheduledTasks {
     public void jobGetPrayTimeAhlibeytAz(){// monthly
         taskService.getPrayTimesFromAhlibeytAz();
     }
+
+    @Scheduled(fixedDelay = HOUR)
+    public void jobStoreUserData(){taskService.storeUserData();}
 }

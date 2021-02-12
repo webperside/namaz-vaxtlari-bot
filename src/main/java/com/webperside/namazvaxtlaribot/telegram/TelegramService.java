@@ -1,11 +1,13 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.model.CallbackQuery;
+import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.*;
+import com.pengrad.telegrambot.response.GetChatResponse;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
 import com.webperside.namazvaxtlaribot.service.FileService;

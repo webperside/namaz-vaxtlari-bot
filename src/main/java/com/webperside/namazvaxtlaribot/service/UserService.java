@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.service;
 
 import com.webperside.namazvaxtlaribot.dto.rest.TelegramUserByIdDto;
+import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.models.User;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface UserService {
     TelegramUserByIdDto getUserInfoByTgIdFromTelegram(String userTgId);
 
     List<User> getAll();
+
+    List<UserDto> getAllWithTelegramInfo(Integer page);
 
     boolean existsByTgId(String tgId);
 
