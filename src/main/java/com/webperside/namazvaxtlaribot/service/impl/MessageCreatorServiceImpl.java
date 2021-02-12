@@ -1,6 +1,5 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
-import com.gargoylesoftware.htmlunit.html.*;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
@@ -19,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,12 +32,16 @@ import static com.webperside.namazvaxtlaribot.config.Constants.*;
 @RequiredArgsConstructor
 public class MessageCreatorServiceImpl implements MessageCreatorService {
 
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
     private final UserService userService;
     private final SourceService sourceService;
     private final CityService cityService;
     private final SettlementService settlementService;
     private final MessageSource messageSource;
     private final WebscrapService webscrapService;
+    private final TaskService taskService;
+
 
     // test methods
     @Override
@@ -110,7 +111,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     }
 
     @Override
-    public MessageDto selectSourceDescriptionCreator(Integer sourceId, Integer sourcePage){
+    public MessageDto selectSourceDescriptionCreator(Integer sourceId, Integer sourcePage) {
         Source source = sourceService.findById(sourceId).orElseThrow(EntityNotFoundException::new);
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
@@ -138,7 +139,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     }
 
     @Override
-    public MessageDto selectCityCreator(Integer cityPage, Integer sourceId, Integer sourcePage){
+    public MessageDto selectCityCreator(Integer cityPage, Integer sourceId, Integer sourcePage) {
         Page<City> cities = cityService.getAllBySourceId(sourceId, cityPage);
 
         if (!cities.hasContent()) {
@@ -215,7 +216,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     @Transactional
     @Override
-    public MessageDto selectCityDescriptionCreator(Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage){
+    public MessageDto selectCityDescriptionCreator(Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage) {
         City city = cityService.getCityById(cityId);
         List<Settlement> settlements = city.getSettlements();
         int size = settlements.size();
@@ -300,25 +301,39 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     @Override
     @Transactional
-    public MessageDto sendPrayTimeCreator(Settlement settlement, Integer settlementId) {
+    public MessageDto prayTimeCreator(Settlement settlement, Integer settlementId) {
 
-        if(settlement == null){
+        if (settlement == null) {
             settlement = settlementService.getById(settlementId);
         }
 
-        if(!prayTimes.containsKey(settlement.getId())){
+        if (!prayTimes.containsKey(settlement.getId())) {
             subProcessIfTimeNotExists(settlement);
         }
 
         PrayTimeDto dto = prayTimes.get(settlement.getId());
 
-        // namazzamani net
+        String sourceName = settlement.getCity().getSource().getName();
+        String msg = null;
 
-        String msg = messageSource.getMessage("telegram.pray_time_namazzamani_net",
-                paramsForNamazZamaniNet(settlement, dto),
-                Locale.getDefault());
+        if (sourceName.equals(DS_NAMAZZAMANI_NET)) {
+            msg = messageSource.getMessage("telegram.pray_time.namazzamani_net",
+                    paramsForNamazZamaniNet(settlement, dto),
+                    Locale.getDefault());
+        } else if (sourceName.equals(DS_AHLIBEYT_AZ)) {
+            msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az",
+                    paramsForAhlibeytAz(settlement, dto),
+                    Locale.getDefault());
+        }
 
         return MessageDto.builder().message(msg).build();
+    }
+
+    @Override
+    @Transactional
+    public MessageDto prayTimeByUserIdCreator(long userTgId) {
+        User user = userService.getByTgId(String.valueOf(userTgId));
+        return prayTimeCreator(user.getSettlement(),null);
     }
 
     //
@@ -389,25 +404,27 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return MessageDto.builder().message(msg).markup(markup).build();
     }
 
-    private void subProcessIfTimeNotExists(Settlement settlement){
+    private void subProcessIfTimeNotExists(Settlement settlement) {
         PrayTimeDto ptd = new PrayTimeDto();
         Source source = settlement.getCity().getSource();
         String sourceName = source.getName();
-        if(sourceName.equals(DS_NAMAZZAMANI_NET)){
-            String params = settlement.getValue();
-            String url = source.getUrl().replace(DS_NAMAZZAMANI_NET_REPLACE,params);
-            ptd = ifSourceIsNamazZamaniNet(url);
-        } else if(sourceName.equals(DS_AHLIBEYT_AZ)){
 
+        if (sourceName.equals(DS_NAMAZZAMANI_NET)) {
+            ptd = ifSourceIsNamazZamaniNet(settlement);
+        } else if (sourceName.equals(DS_AHLIBEYT_AZ)) {
+            ptd = ifSourceIsAhlibeytAz(settlement);
         }
 
         prayTimes.put(settlement.getId(), ptd);
     }
 
-    private Object[] paramsForNamazZamaniNet(Settlement settlement, PrayTimeDto dto){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-//        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    private PrayTimeDto ifSourceIsNamazZamaniNet(Settlement settlement) {
+        String params = settlement.getValue();
+        String url = settlement.getCity().getSource().getUrl().replace(DS_NAMAZZAMANI_NET_REPLACE, params);
+        return webscrapService.prepareDataForNamazZamaniNet(url);
+    }
 
+    private Object[] paramsForNamazZamaniNet(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
                 formatter.format(dto.getImsak()),
@@ -420,32 +437,35 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         };
     }
 
-    private PrayTimeDto ifSourceIsNamazZamaniNet(String url){
-        try {
-            DomElement dom = webscrapService.scrapById(url, "timeScale");
-            if(dom instanceof HtmlDivision){
-                HtmlDivision div = (HtmlDivision) dom;
+    private PrayTimeDto ifSourceIsAhlibeytAz(Settlement settlement) {
+        LocalDate ld = LocalDate.now();
+        int dayOfMonthPlus1 = ld.getDayOfMonth();
 
-                DomNodeList<HtmlElement> list = div.getElementsByTagName("ul");
-
-                PrayTimeDto prayTime = new PrayTimeDto();
-
-                for(HtmlElement element : list){
-                    DomElement d = element.getLastElementChild();
-
-                    if(d instanceof HtmlListItem){
-                        HtmlListItem li = (HtmlListItem) d;
-                        prayTime.addForNamazZamaniNet(li.getId(), li.asText());
-                    }
-
-                }
-
-                return prayTime;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (ahlibeytAzTimes.isEmpty()) {
+            // If the application runs the first time, data will not be exist
+            // First of all, we have to get data from source.
+            // After getting data this case will not be true
+            webscrapService.prepareDataForAhlibeytAz(settlement.getCity().getSource());
         }
-        return null;
+
+        PrayTimeDto ptd = ahlibeytAzTimes.get(dayOfMonthPlus1);
+        return ptd.changeByValue(settlement.getValue());
+    }
+
+    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto){
+        return new Object[]{
+                settlement.getName(),
+                formatter.format(dto.getImsak()),
+                formatter.format(dto.getSubh()),
+                formatter.format(dto.getGunChixir()),
+                formatter.format(dto.getZohr()),
+                formatter.format(dto.getEsr()),
+                formatter.format(dto.getGunBatir()),
+                formatter.format(dto.getMegrib()),
+                formatter.format(dto.getIsha()),
+                formatter.format(dto.getGeceYarisi()),
+                settlement.getCity().getSource().getName()
+        };
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {

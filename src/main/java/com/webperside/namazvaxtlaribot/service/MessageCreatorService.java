@@ -21,5 +21,7 @@ public interface MessageCreatorService {
 
     String selectCitySettlementConfirmCreator(String from, long userTgId, Integer citySettlementId);
 
-    MessageDto sendPrayTimeCreator(Settlement settlement, Integer settlementId);
+    MessageDto prayTimeCreator(Settlement settlement, Integer settlementId);
+
+    MessageDto prayTimeByUserIdCreator(long userTgId);
 }

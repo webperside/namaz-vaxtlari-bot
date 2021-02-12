@@ -26,7 +26,6 @@ public class Constants {
     // ...::: source - ahlibeyt.az :::...
     public static final String DS_AHLIBEYT_AZ = "ahlibeyt.az";
 
-
     // buttons
     public static final String PARAM_SEPARATOR = "&";
     public static final String BUTTON_T_BASHLA = "Başla";
@@ -62,4 +61,6 @@ public class Constants {
      */
     public static List<User> users = new ArrayList<>();
     public static Map<Integer, PrayTimeDto> prayTimes = new HashMap<>();
+    public static Map<Integer, PrayTimeDto> ahlibeytAzTimes = new HashMap<>();
+
 }

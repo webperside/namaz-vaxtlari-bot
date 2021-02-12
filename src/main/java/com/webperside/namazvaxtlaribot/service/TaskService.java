@@ -7,4 +7,6 @@ public interface TaskService {
     void sendPrayTimes(User user);
 
     void storeUserData();
+
+    void getPrayTimesFromAhlibeytAz();
 }
