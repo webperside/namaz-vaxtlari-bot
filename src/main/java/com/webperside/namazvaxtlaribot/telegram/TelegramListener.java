@@ -14,6 +14,17 @@ import static com.webperside.namazvaxtlaribot.config.Constants.ADMIN_TELEGRAM_ID
 @Slf4j
 public class TelegramListener {
 
+    public enum RequestType{
+        UPDATE,
+        CALLBACK;
+
+        public static RequestType determineRequest(Update update){
+            if(update.message() != null) return UPDATE;
+            else if(update.message() == null && update.callbackQuery() != null) return CALLBACK;
+            return UPDATE;
+        }
+    }
+
     private final TelegramService telegramService;
 
     public void listener() {
@@ -22,7 +33,11 @@ public class TelegramListener {
             log.info("Updates size : [{}]", updates.size());
 
             for (Update update : updates) {
-                long userId = update.message().from().id();
+                RequestType request = RequestType.determineRequest(update);
+
+                long userId = request.equals(RequestType.UPDATE) ?
+                        update.message().from().id() :
+                        update.callbackQuery().message().from().id();
 
                 log.info("Working on Update ID : [{}]", update.updateId());
                 TelegramConfig.execute(new SendMessage(ADMIN_TELEGRAM_ID, userId + " new user ID"));
@@ -52,6 +67,5 @@ public class TelegramListener {
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
-
 
 }
