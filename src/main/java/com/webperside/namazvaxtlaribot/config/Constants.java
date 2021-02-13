@@ -14,7 +14,9 @@ public class Constants {
 
     public static final String VALUE_SEPARATOR = "-";
     public static final String CALLBACK_VAL = "CB" + VALUE_SEPARATOR;
-    public static final String SOURCE_SELECT_CALLBACK_VAL = CALLBACK_VAL + "ID=";
+
+    // admin info
+    public static final String ADMIN_TELEGRAM_ID = "625929111";
 
     // ...::: source - namazzamani.net :::...
     public static final String DS_NAMAZZAMANI_NET = "namazzamani.net";
