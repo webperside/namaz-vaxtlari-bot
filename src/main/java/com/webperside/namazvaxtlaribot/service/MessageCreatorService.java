@@ -7,7 +7,9 @@ public interface MessageCreatorService {
 
     MessageDto testCreator();
 
-    MessageDto startCreator(String from);
+    MessageDto startCreator(Long userTgId, String from);
+
+    String userAlreadyExistCreator(Long userTgId);
 
     MessageDto selectSourceCreator(Integer sourcePage);
 

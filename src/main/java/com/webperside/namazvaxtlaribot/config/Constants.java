@@ -16,7 +16,7 @@ public class Constants {
     public static final String CALLBACK_VAL = "CB" + VALUE_SEPARATOR;
 
     // admin info
-    public static final String ADMIN_TELEGRAM_ID = "625929111";
+    public static final Long ADMIN_TELEGRAM_ID = 625929111L;
 
     // ...::: source - namazzamani.net :::...
     public static final String DS_NAMAZZAMANI_NET = "namazzamani.net";

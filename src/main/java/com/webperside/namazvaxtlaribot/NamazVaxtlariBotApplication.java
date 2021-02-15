@@ -13,7 +13,10 @@ import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.service.SettlementService;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
+import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
+import com.webperside.namazvaxtlaribot.telegram.handlers.Handler;
+import com.webperside.namazvaxtlaribot.telegram.handlers.HandlerInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,14 +26,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@EnableScheduling
+//@EnableScheduling
 public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     private final CityRepository cityRepository;
@@ -42,6 +45,10 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     private final TelegramListener listener;
 
+    private final TelegramHelper helper;
+
+    private final Handler handler;
+
     public static void main(String[] args) {
         SpringApplication.run(NamazVaxtlariBotApplication.class, args);
     }
@@ -49,6 +56,10 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        handler.get("start").process("?","salasmjh");
+//        helper.listen();
+//        helper.executor().sendText();
+//        System.out.println(helper.getTest());
 //        Thread.sleep(10000);
 //        LocalDate ld = LocalDate.now();
 //        int dayOfMonthPlus1 = ld.getDayOfMonth() + 1; // first row is a header
@@ -106,7 +117,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 //
 //        System.out.println(localDateTime);
 //		apiService.get();
-		listener.listener();
+//		listener.listener();
     }
 
     public void saveDefaultSettlement(){

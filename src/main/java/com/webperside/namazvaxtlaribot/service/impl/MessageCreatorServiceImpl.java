@@ -62,7 +62,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     // start and registration methods
     @Override
-    public MessageDto startCreator(String from) {
+    public MessageDto startCreator(Long userTgId, String from) {
         String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
                 new InlineKeyboardButton(BUTTON_T_BASHLA)
@@ -79,6 +79,16 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 .message(startMessage)
                 .markup(markup)
                 .build();
+    }
+
+    @Override
+    public String userAlreadyExistCreator(Long userTgId) {
+
+        if (userService.existsByTgId(String.valueOf(userTgId))) {
+            return messageSource.getMessage("telegram.user_already_exist", null, Locale.getDefault());
+        }
+
+        return null;
     }
 
     @Override
