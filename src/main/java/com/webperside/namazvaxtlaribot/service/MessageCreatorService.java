@@ -5,6 +5,8 @@ import com.webperside.namazvaxtlaribot.models.Settlement;
 
 public interface MessageCreatorService {
 
+    String commandNotFoundCreator(String command);
+
     MessageDto testCreator();
 
     MessageDto startCreator(Long userTgId, String from);
@@ -22,6 +24,8 @@ public interface MessageCreatorService {
     MessageDto selectCitySettlementDescriptionCreator(Integer citySettlementId, Integer cityId, Integer cityPage, Integer sourceId, Integer sourcePage);
 
     String selectCitySettlementConfirmCreator(String from, long userTgId, Integer citySettlementId);
+
+    String selectCitySettlementConfirmAfterCreator();
 
     MessageDto prayTimeCreator(Settlement settlement, Integer settlementId);
 

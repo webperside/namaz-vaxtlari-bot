@@ -15,18 +15,15 @@ import com.webperside.namazvaxtlaribot.service.SettlementService;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
-import com.webperside.namazvaxtlaribot.telegram.handlers.Handler;
-import com.webperside.namazvaxtlaribot.telegram.handlers.HandlerInterface;
+import com.webperside.namazvaxtlaribot.telegram.handlers.TelegramHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
@@ -45,10 +42,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     private final TelegramListener listener;
 
-    private final TelegramHelper helper;
-
-    private final Handler handler;
-
     public static void main(String[] args) {
         SpringApplication.run(NamazVaxtlariBotApplication.class, args);
     }
@@ -56,7 +49,8 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        handler.get("start").process("?","salasmjh");
+        listener.listen();
+//        handler.get("start").process("?","salasmjh");
 //        helper.listen();
 //        helper.executor().sendText();
 //        System.out.println(helper.getTest());

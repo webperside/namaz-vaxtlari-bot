@@ -42,6 +42,13 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private final WebscrapService webscrapService;
     private final TaskService taskService;
 
+    @Override
+    public String commandNotFoundCreator(String command) {
+        return messageSource.getMessage(
+                "telegram.command.not_found",
+                new Object[]{command},
+                Locale.getDefault());
+    }
 
     // test methods
     @Override
@@ -74,6 +81,8 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                                         .join()
                         )
         );
+
+        userService.save(String.valueOf(userTgId));
 
         return MessageDto.builder()
                 .message(startMessage)
@@ -305,6 +314,11 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 Locale.getDefault());
     }
 
+    @Override
+    public String selectCitySettlementConfirmAfterCreator() {
+        return messageSource.getMessage("telegram.complete_configuration.after", null, Locale.getDefault());
+    }
+
     // start and registration methods
 
     //
@@ -343,7 +357,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     @Transactional
     public MessageDto prayTimeByUserIdCreator(long userTgId) {
         User user = userService.getByTgId(String.valueOf(userTgId));
-        return prayTimeCreator(user.getSettlement(),null);
+        return prayTimeCreator(user.getSettlement(), null);
     }
 
     //
@@ -462,7 +476,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return ptd.changeByValue(settlement.getValue());
     }
 
-    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto){
+    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
                 formatter.format(dto.getImsak()),

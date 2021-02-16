@@ -10,6 +10,8 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
+import com.webperside.namazvaxtlaribot.telegram.handlers.TelegramHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,13 @@ import static com.webperside.namazvaxtlaribot.config.Constants.ADMIN_TELEGRAM_ID
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TelegramHelper {
 
     @Value("${TGT}")
     private String TOKEN;
     private TelegramBot bot;
     private final Executor executor = new Executor();
-    private final Listener listener = new Listener();
 
     public TelegramBot bot() {
         if (this.bot != null) {
@@ -32,10 +34,6 @@ public class TelegramHelper {
         }
         this.bot = new TelegramBot(this.TOKEN);
         return this.bot;
-    }
-
-    public void listen() {
-        listener.listen();
     }
 
     public Executor executor() {
@@ -46,7 +44,9 @@ public class TelegramHelper {
      * @author Hamid Sultanzadeh
      * @implNote This class implemented for Telegram queries.For example, send, edit text messages or delete messages
      */
+    @Service
     public class Executor {
+
 
         //        public <T extends BaseRequest<T, R>, R extends BaseResponse> R execute(T request){
 //            return bot().execute(request);
@@ -100,6 +100,10 @@ public class TelegramHelper {
             execute(new DeleteMessage(userTgId, messageId));
         }
 
+        public void answerCallbackQuery(String callbackQueryId){
+            execute(new AnswerCallbackQuery(callbackQueryId));
+        }
+
         public String getUserInfo(User user) {
             String firstName = user.firstName();
             String lastName = user.lastName();
@@ -107,54 +111,6 @@ public class TelegramHelper {
             return firstName + (lastName != null ? " " + lastName : "");
         }
         // finish - query methods
-    }
-
-    /**
-     * @author Hamid Sultanzadeh
-     * @implNote This class implemented to listen Telegram Forwards
-     */
-    public class Listener {
-
-        private static final String ERROR_MESSAGE_TEMPLATE = "USER ID - %s\n" +
-                "EXCEPTION - %s\n" +
-                "MESSAGE - %s";
-
-        public void listen() {
-            bot().setUpdatesListener(updates -> {
-
-                log.info("Updates size : [{}]", updates.size());
-
-                for (Update update : updates) {
-                    RequestType request = RequestType.determineRequest(update);
-
-                    Integer userId = request.equals(RequestType.UPDATE) ?
-                            update.message().from().id() :
-                            update.callbackQuery().from().id();
-
-                    log.info("Working on Update ID : [{}], User ID : [{}], RequestType : [{}]", update.updateId(), userId, request.name());
-
-                    try {
-//                        telegramService.process(update);
-                    } catch (Exception e) {
-
-                        log.error("User ID [{}], Exception [{}], Message [{}]", userId, e.getClass().getSimpleName(), e.getMessage());
-
-                        executor().sendText(
-                                ADMIN_TELEGRAM_ID,
-                                String.format(
-                                        ERROR_MESSAGE_TEMPLATE,
-                                        userId,
-                                        e.getClass().getSimpleName(),
-                                        e.getMessage()
-                                )
-                        );
-                        return update.updateId();
-                    }
-                }
-
-                return UpdatesListener.CONFIRMED_UPDATES_ALL;
-            });
-        }
     }
 
 }

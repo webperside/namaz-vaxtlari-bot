@@ -36,12 +36,12 @@ public class Constants {
     public static final String BUTTON_T_BACK_TO_SELECT_CITY_MENU = Emoji.LEFT_ARROW.getValue() + " Şəhərlər menyusuna geri dön";
     public static final String BUTTON_CB_NAV_FIRST_LOAD = "f_l";
     public static final String BUTTON_CB_NAV_EMPTY = "e";
-    public static final String BUTTON_CB_SELECT_SOURCE = "s_s"; // +navigateTo+page
-    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = "s_s_d";
-    public static final String BUTTON_CB_SELECT_CITY = "s_c";
-    public static final String BUTTON_CB_SELECT_CITY_DESCRIPTION = "s_c_d";
-    public static final String BUTTON_CB_SELECT_CITY_SETT_DESCRIPTION = "s_c_s_d";
-    public static final String BUTTON_CB_SELECT_CITY_SETT_CONFIRM = "s_c_s_c";
+    public static final String BUTTON_CB_SELECT_SOURCE = "ss"; // +navigateTo+page
+    public static final String BUTTON_CB_SELECT_SOURCE_DESCRIPTION = "ssd";
+    public static final String BUTTON_CB_SELECT_CITY = "sc";
+    public static final String BUTTON_CB_SELECT_CITY_DESCRIPTION = "scd";
+    public static final String BUTTON_CB_SELECT_CITY_SETT_DESCRIPTION = "scsd";
+    public static final String BUTTON_CB_SELECT_CITY_SETT_CONFIRM = "scsc";
 
 
     /**
