@@ -42,6 +42,13 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private final WebscrapService webscrapService;
     private final TaskService taskService;
 
+    @Override
+    public String commandNotFoundCreator(String command) {
+        return messageSource.getMessage(
+                "telegram.command.not_found",
+                new Object[]{command},
+                Locale.getDefault());
+    }
 
     // test methods
     @Override
@@ -62,7 +69,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     // start and registration methods
     @Override
-    public MessageDto startCreator(String from) {
+    public MessageDto startCreator(Long userTgId, String from) {
         String startMessage = messageSource.getMessage("telegram.command.start", new Object[]{from}, Locale.getDefault());
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
                 new InlineKeyboardButton(BUTTON_T_BASHLA)
@@ -75,10 +82,22 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                         )
         );
 
+        userService.save(String.valueOf(userTgId));
+
         return MessageDto.builder()
                 .message(startMessage)
                 .markup(markup)
                 .build();
+    }
+
+    @Override
+    public String userAlreadyExistCreator(Long userTgId) {
+
+        if (userService.existsByTgId(String.valueOf(userTgId))) {
+            return messageSource.getMessage("telegram.user_already_exist", null, Locale.getDefault());
+        }
+
+        return null;
     }
 
     @Override
@@ -295,6 +314,11 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 Locale.getDefault());
     }
 
+    @Override
+    public String selectCitySettlementConfirmAfterCreator() {
+        return messageSource.getMessage("telegram.complete_configuration.after", null, Locale.getDefault());
+    }
+
     // start and registration methods
 
     //
@@ -333,7 +357,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     @Transactional
     public MessageDto prayTimeByUserIdCreator(long userTgId) {
         User user = userService.getByTgId(String.valueOf(userTgId));
-        return prayTimeCreator(user.getSettlement(),null);
+        return prayTimeCreator(user.getSettlement(), null);
     }
 
     //
@@ -452,7 +476,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return ptd.changeByValue(settlement.getValue());
     }
 
-    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto){
+    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
                 formatter.format(dto.getImsak()),

@@ -9,7 +9,6 @@ import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
 import com.webperside.namazvaxtlaribot.service.UserService;
-import com.webperside.namazvaxtlaribot.telegram.TelegramService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
