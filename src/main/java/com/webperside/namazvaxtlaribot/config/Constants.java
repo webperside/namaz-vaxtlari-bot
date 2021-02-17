@@ -65,4 +65,8 @@ public class Constants {
     public static Map<Integer, PrayTimeDto> prayTimes = new HashMap<>();
     public static Map<Integer, PrayTimeDto> ahlibeytAzTimes = new HashMap<>();
 
+    // Exception filtering
+    public static final String NOT_SPECIAL = "NOT_SPECIAL";
+    public static final String PRAY_TIME_SETTLEMENT_NOT_FOUND = "PRAY_TIME_SETTLEMENT_NOT_FOUND";
+
 }

@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -30,7 +31,7 @@ import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NE
 
 @SpringBootApplication
 @RequiredArgsConstructor
-//@EnableScheduling
+@EnableScheduling
 public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     private final CityRepository cityRepository;
@@ -50,68 +51,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         listener.listen();
-//        handler.get("start").process("?","salasmjh");
-//        helper.listen();
-//        helper.executor().sendText();
-//        System.out.println(helper.getTest());
-//        Thread.sleep(10000);
-//        LocalDate ld = LocalDate.now();
-//        int dayOfMonthPlus1 = ld.getDayOfMonth() + 1; // first row is a header
-//        PrayTimeDto ptd = ahlibeytAzTimes.get(dayOfMonthPlus1);
-//        System.out.println(ptd);
-//        testMethod();
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        String test = "06:11";
-//        String[] t = test.split(":");
-//        int i = Integer.parseInt(t[0]);
-//        System.out.println(i);
-//        Calendar now = Calendar.getInstance();
-//        now.set(Calendar.HOUR, Integer.parseInt(t[0]));
-//        now.set(Calendar.MINUTE, Integer.parseInt(t[1]));
-//        now.set(Calendar.SECOND, 0);
-//
-//        System.out.println(sdf.format(now.getTime()));
-//        Settlement settlement = settlementService.getById(2);
-//        DomElement dom = webscrapService.scrapById(url, "timeScale");
-//
-//        if(dom instanceof HtmlDivision){
-//            HtmlDivision div = (HtmlDivision) dom;
-//
-//            DomNodeList<HtmlElement> list = div.getElementsByTagName("ul");
-//
-//            for(HtmlElement element : list){
-//                DomElement d = element.getLastElementChild();
-//
-//                if(d instanceof HtmlListItem){
-//                    HtmlListItem li = (HtmlListItem) d;
-//                    System.out.println(li.asText());
-//                }
-//
-//            }
-//        }
-
-
-
-//        messageCreatorService.sendPrayTimeCreator(settlement);
-
-//        System.out.println(settlement.getCity().getName());
-//        System.out.println(settlement.getCity().getSource().getName());
-//        TelegramConfig.execute(new SendMessage("506777509",
-//                "Salam. Istifadeniz uchun teshekkur edirik. Yaxin zamanda bot tamamile hazir olduqda size bildirim gelecekdir.\n" +
-//                        "Teshekkurler !"));
-//        GetChatResponse response = TelegramConfig.execute(new GetChat("506777509"));
-//        System.out.println(response.chat().firstName());
-//        getCitiesAndSave();
-//        getSettlementsAndSave();
-
-//        saveDefaultSettlement();
-//        saveCities();
-//        testMethod();
-//        LocalDateTime localDateTime = LocalDateTime.now();
-//
-//        System.out.println(localDateTime);
-//		apiService.get();
-//		listener.listener();
     }
 
     public void saveDefaultSettlement(){

@@ -50,6 +50,15 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 Locale.getDefault());
     }
 
+    @Override
+    public String exceptionMessageCreator(String filter) {
+        String keyword = "telegram.exception.not_special";
+        if(filter.equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
+            keyword = "telegram.exception.settlement_not_found";
+        }
+        return messageSource.getMessage(keyword,null, Locale.getDefault());
+    }
+
     // test methods
     @Override
     public MessageDto testCreator() {
@@ -131,7 +140,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     @Override
     public MessageDto selectSourceDescriptionCreator(Integer sourceId, Integer sourcePage) {
-        Source source = sourceService.findById(sourceId).orElseThrow(EntityNotFoundException::new);
+        Source source = sourceService.findById(sourceId);
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
                 new InlineKeyboardButton(Emoji.LEFT_ARROW.getValue())
@@ -357,6 +366,10 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     @Transactional
     public MessageDto prayTimeByUserIdCreator(long userTgId) {
         User user = userService.getByTgId(String.valueOf(userTgId));
+        Settlement settlement = user.getSettlement();
+        if(settlement == null){
+            throw new EntityNotFoundException(PRAY_TIME_SETTLEMENT_NOT_FOUND);
+        }
         return prayTimeCreator(user.getSettlement(), null);
     }
 

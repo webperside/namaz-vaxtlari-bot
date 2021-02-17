@@ -1,22 +1,20 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.GetChatResponse;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
-import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
-import com.webperside.namazvaxtlaribot.telegram.handlers.TelegramHandler;
+import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import static com.webperside.namazvaxtlaribot.config.Constants.ADMIN_TELEGRAM_ID;
 
 @Service
 @Slf4j
@@ -47,13 +45,8 @@ public class TelegramHelper {
     @Service
     public class Executor {
 
-
-        //        public <T extends BaseRequest<T, R>, R extends BaseResponse> R execute(T request){
-//            return bot().execute(request);
-//        }
-//      todo just for now return nothing
-        public <T extends BaseRequest<T, R>, R extends BaseResponse> void execute(T request) {
-            bot().execute(request);
+        public <T extends BaseRequest<T, R>, R extends BaseResponse> R execute(T request){
+            return bot().execute(request);
         }
 
         public void simulateTyping(Long userTgId) {
@@ -61,7 +54,6 @@ public class TelegramHelper {
             execute(new SendChatAction(userTgId, action));
         }
 
-        // start - core methods
         private void coreSendText(Long userTgId, String message, InlineKeyboardMarkup markup) {
             if (markup == null) {
                 markup = new InlineKeyboardMarkup();
@@ -75,9 +67,7 @@ public class TelegramHelper {
             }
             execute(new EditMessageText(userId, messageId, message).replyMarkup(markup));
         }
-        // finish - core methods
 
-        // start - query methods
         public void sendText(Long userTgId, String message) {
             simulateTyping(userTgId);
             coreSendText(userTgId, message, null);
@@ -110,7 +100,26 @@ public class TelegramHelper {
 
             return firstName + (lastName != null ? " " + lastName : "");
         }
-        // finish - query methods
+
+        public UserDto getUserInfoDetail(Long userTgId){
+            GetChatResponse chatResponse = execute(new GetChat(userTgId));
+            Chat chat = chatResponse.chat();
+            String photoPath = "/images/user-no-photo.jpg";
+
+            if(chat.photo() != null){
+                String fileId = chat.photo().bigFileId();
+                GetFileResponse fileResponse = execute(new GetFile(fileId));
+                photoPath = bot().getFullFilePath(fileResponse.file());
+            }
+
+            return UserDto.builder()
+                    .firstName(chat.firstName())
+                    .lastName(chat.lastName())
+                    .username(chat.username() != null ? "@"+ chat.username() : "no-username")
+                    .photoUrl(photoPath)
+                    .userTelegramId(String.valueOf(chat.id()))
+                    .build();
+        }
     }
 
 }

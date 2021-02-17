@@ -7,6 +7,8 @@ public interface MessageCreatorService {
 
     String commandNotFoundCreator(String command);
 
+    String exceptionMessageCreator(String filter);
+
     MessageDto testCreator();
 
     MessageDto startCreator(Long userTgId, String from);

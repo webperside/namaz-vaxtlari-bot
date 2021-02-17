@@ -1,17 +1,9 @@
 package com.webperside.namazvaxtlaribot.task;
 
-import com.webperside.namazvaxtlaribot.config.Constants;
-import com.webperside.namazvaxtlaribot.external.APIService;
-import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.service.TaskService;
-import com.webperside.namazvaxtlaribot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import javax.transaction.Transactional;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 @Component

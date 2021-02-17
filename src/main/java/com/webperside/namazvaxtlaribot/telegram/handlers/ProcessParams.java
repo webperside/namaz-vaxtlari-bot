@@ -18,4 +18,6 @@ public class ProcessParams {
     private Integer settlementId;
     private String navigateTo;
 
+    private String customMessage; // for exception messages
+
 }

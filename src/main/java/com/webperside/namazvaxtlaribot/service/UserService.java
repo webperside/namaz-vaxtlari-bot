@@ -1,6 +1,5 @@
 package com.webperside.namazvaxtlaribot.service;
 
-import com.webperside.namazvaxtlaribot.dto.rest.TelegramUserByIdDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.models.User;
 
@@ -11,8 +10,6 @@ public interface UserService {
     User getById(Integer id);
 
     User getByTgId(String tgId);
-
-    TelegramUserByIdDto getUserInfoByTgIdFromTelegram(String userTgId);
 
     List<User> getAll();
 

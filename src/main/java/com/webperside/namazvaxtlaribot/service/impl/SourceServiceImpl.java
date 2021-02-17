@@ -23,8 +23,8 @@ public class SourceServiceImpl implements SourceService {
     }
 
     @Override
-    public Optional<Source> findById(Integer sourceId) {
-        return sourceRepository.findById(sourceId);
+    public Source findById(Integer sourceId) {
+        return sourceRepository.findById(sourceId).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override

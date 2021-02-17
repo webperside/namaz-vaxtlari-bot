@@ -9,6 +9,5 @@ import org.springframework.web.bind.annotation.RestController;
 public class CronJobController {
 
     @GetMapping
-    public void trigger() {
-    }
+    public void trigger() {}
 }

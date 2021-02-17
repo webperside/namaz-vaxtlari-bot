@@ -3,7 +3,7 @@ package com.webperside.namazvaxtlaribot.telegram.handlers;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
-import com.webperside.namazvaxtlaribot.enums.telegram.TelegramCommand;
+import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundException;
@@ -12,6 +12,7 @@ import com.webperside.namazvaxtlaribot.util.Params;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,17 +32,19 @@ public class TelegramHandler {
     private static final String CONSTANT_SUFFIX_HANDLER = "handler";
     private static final String CONSTANT_SUFFIX_CB_HANDLER = "cbhandler";
 
-    public HandlerInterface handle(String key){
-        try{
-            String command = isCommand(key);
-            if(!endpoints.containsKey(command)){
-                initialize(command);
-            }
-            return endpoints.get(command);
-        } catch (CommandNotFoundException e){
-            initialize(EXCEPTION_HANDLER);
-            return endpoints.get(EXCEPTION_HANDLER);
+    public HandlerInterface handle(String key) throws Exception{
+        String command = isCommand(key);
+        if(!endpoints.containsKey(command)){
+            initialize(command);
         }
+        return endpoints.get(command);
+    }
+
+    public HandlerInterface handleException(){
+        if(!endpoints.containsKey(EXCEPTION_HANDLER)){
+            initialize(EXCEPTION_HANDLER);
+        }
+        return endpoints.get(EXCEPTION_HANDLER);
     }
 
     private String isCommand(String com){
@@ -80,7 +83,7 @@ public class TelegramHandler {
         return null;
     }
 
-    public void processRequest(Update update){
+    public void processRequest(Update update) throws Exception {
         if (update.message() == null && update.callbackQuery() != null) {
             CallbackQuery query = update.callbackQuery();
 
@@ -118,6 +121,7 @@ public class TelegramHandler {
             String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
 
             if(alreadyExist != null){
+
                 executor.sendText(chatId, alreadyExist);
                 return ;
             }
@@ -145,9 +149,8 @@ public class TelegramHandler {
         public void process(ProcessParams processParams) {
             Update update = processParams.getUpdate();
             Long userTgId = update.message().chat().id();
-            String text = update.message().text();
-            String msg = messageCreatorService.commandNotFoundCreator(text);
-            executor.sendText(userTgId, msg);
+            String text = processParams.getCustomMessage();
+            executor.sendText(userTgId, text);
         }
     }
 

@@ -1,8 +1,6 @@
-package com.webperside.namazvaxtlaribot.enums.telegram;
+package com.webperside.namazvaxtlaribot.telegram.enums;
 
 import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundException;
-
-import java.util.Locale;
 
 public enum TelegramCommand {
 

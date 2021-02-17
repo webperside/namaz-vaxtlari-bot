@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.telegram.handlers;
 
+import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 
@@ -29,6 +30,15 @@ public interface HandlerInterface {
                 .cityPage(cityPage)
                 .settlementId(settlementId)
                 .navigateTo(navigateTo)
+                .build());
+    }
+
+    default void run(Update update, CallbackQuery query, String customMessage){
+        // call implement method
+        process(ProcessParams.builder()
+                .update(update)
+                .query(query)
+                .customMessage(customMessage)
                 .build());
     }
 
