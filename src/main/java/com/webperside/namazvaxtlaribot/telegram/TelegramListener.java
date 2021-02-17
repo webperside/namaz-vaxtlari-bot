@@ -2,6 +2,7 @@ package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
 import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundException;
@@ -46,12 +47,12 @@ public class TelegramListener {
                 log.info("Working on Update ID : [{}], User ID : [{}], Chat ID : [{}], RequestType : [{}]", update.updateId(), userId, chatId, request.name());
 
                 try {
-                    handler.processRequest(update);
+                    handler.processRequest(update); // processing
                 } catch (CommandNotFoundException e){ // UI exception
                     printLogException(userId, chatId, e);
 
                     String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
-                    handler.handleException().run(update, update.callbackQuery(), customMessage);
+                    helper.executor().sendText(chatId, customMessage);
                     return update.updateId();
                 } catch (EntityNotFoundException e){ // UI exception
                     printLogException(userId, chatId, e);
@@ -59,8 +60,13 @@ public class TelegramListener {
                     String customMessage = messageCreatorService.exceptionMessageCreator(NOT_SPECIAL);
                     if(e.getMessage() != null && e.getMessage().equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
                         customMessage = messageCreatorService.exceptionMessageCreator(PRAY_TIME_SETTLEMENT_NOT_FOUND);
+                        helper.executor().sendText(chatId, customMessage);
+
+                        MessageDto registerNotCompleted = messageCreatorService.selectSourceCreator(0);
+                        helper.executor().sendText(chatId, registerNotCompleted);
+                    } else{
+                        helper.executor().sendText(chatId, customMessage);
                     }
-                    handler.handleException().run(update, update.callbackQuery(), customMessage);
                     return update.updateId();
                 } catch (Exception e) { // technical exception
 
@@ -68,6 +74,7 @@ public class TelegramListener {
 
                     printLogException(userId, chatId, e);
 
+                    // alert
                     helper.executor().sendText(
                             ADMIN_TELEGRAM_ID,
                             String.format(

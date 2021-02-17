@@ -2,6 +2,7 @@ package com.webperside.namazvaxtlaribot.service.impl;
 
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
+import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
 import com.webperside.namazvaxtlaribot.service.UserService;
@@ -40,12 +41,15 @@ public class UserServiceImpl implements UserService {
         Constants.users.forEach(user -> {
             UserDto userDto = executor.getUserInfoDetail(Long.parseLong(user.getUserTgId()));
             userDto.setId(user.getId());
+
+            Settlement settlement = user.getSettlement();
             userDto.setSettlement(
                     UserDto.UserDto_Settlement.builder()
-                            .id(user.getSettlement().getId())
-                            .name(user.getSettlement().getName())
+                            .id(settlement == null ? Integer.valueOf(0) : settlement.getId())
+                            .name(settlement == null ? "n/a" : settlement.getName())
                             .build()
             );
+
             userDtoList.add(userDto);
         });
         return userDtoList;
