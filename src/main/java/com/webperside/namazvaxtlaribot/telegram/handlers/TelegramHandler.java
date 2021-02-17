@@ -28,7 +28,6 @@ public class TelegramHandler {
     private final MessageCreatorService messageCreatorService;
     private final TelegramHelper.Executor executor;
     private final HashMap<String, HandlerInterface> endpoints = new HashMap<>();
-    private static final String EXCEPTION_HANDLER = "exception";
     private static final String CONSTANT_SUFFIX_HANDLER = "handler";
     private static final String CONSTANT_SUFFIX_CB_HANDLER = "cbhandler";
 
@@ -38,13 +37,6 @@ public class TelegramHandler {
             initialize(command);
         }
         return endpoints.get(command);
-    }
-
-    public HandlerInterface handleException(){
-        if(!endpoints.containsKey(EXCEPTION_HANDLER)){
-            initialize(EXCEPTION_HANDLER);
-        }
-        return endpoints.get(EXCEPTION_HANDLER);
     }
 
     private String isCommand(String com){
@@ -69,8 +61,6 @@ public class TelegramHandler {
             }
         }
 
-        HandlerInterface foundedHandler = initializeHandler(ExceptionHandler.class);
-        endpoints.put(EXCEPTION_HANDLER, foundedHandler);
         throw new CommandNotFoundException(String.format("%s command not found", prefix));
     }
 
@@ -140,17 +130,6 @@ public class TelegramHandler {
             Long chatId = update.message().chat().id();
             MessageDto dto = messageCreatorService.prayTimeByUserIdCreator(chatId);
             executor.sendText(chatId, dto);
-        }
-    }
-
-    public class ExceptionHandler implements HandlerInterface{
-
-        @Override
-        public void process(ProcessParams processParams) {
-            Update update = processParams.getUpdate();
-            Long userTgId = update.message().chat().id();
-            String text = processParams.getCustomMessage();
-            executor.sendText(userTgId, text);
         }
     }
 
