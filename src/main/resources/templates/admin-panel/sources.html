@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sources</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+          integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="/admin-panel/fragments/navbar :: navbar"></div>
+    <table class="table">
+        <caption th:text="'Count of sources : ' + ${sources.getContent().size()}"></caption>
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">URL</th>
+            <th scope="col">Cities count</th>
+            <th scope="col">Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="source: ${sources.getContent()}">
+            <th scope="row" th:text="${sourceStat.index + 1}"></th>
+            <td th:text="${source.id}"></td>
+            <td th:text="${source.name}"></td>
+            <td th:text="${source.description.length() > 50} ? ${#strings.substring(source.description,0,50)} + '...' : ${source.description}"></td>
+            <td th:text="${source.url}"></td>
+            <td th:text="${source.cities.size()}"></td>
+            <td>
+                <button type="button" class="btn btn-outline-warning btn-sm"
+                        th:onclick="'javascript:showEditModal('+ ${source.id} +')'">
+                    <i class="far fa-edit"></i>
+                </button>
+<!--                <button type="button" class="btn btn-outline-danger btn-sm">-->
+<!--                    <i class="far fa-trash-alt"></i>-->
+<!--                </button>-->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Source</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editSourceFrom" th:action="@{/admin/sources/edit}" th:object="${newSource}" method="post">
+                        <div class="mb-3">
+                            <label for="editNameInput" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editNameInput" th:field="*{name}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescriptionInput" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescriptionInput" rows="3" th:field="*{description}"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editUrlInput" class="form-label">URL</label>
+                            <input type="text" class="form-control" id="editUrlInput" readonly th:field="*{url}">
+                        </div>
+                        <input id="editIdInput" hidden th:field="*{id}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="postRequest()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function postRequest(){
+        document.getElementById("editSourceFrom").submit();
+    }
+
+    function showEditModal(sourceId){
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if(request.readyState === 4) {
+                if(request.status === 200) {
+                    const response = request.response;
+                    console.log(request.response.id)
+                    document.getElementById("editIdInput").value = response.id;
+                    document.getElementById("editNameInput").value = response.name;
+                    document.getElementById("editDescriptionInput").value = response.description;
+                    document.getElementById("editUrlInput").value = response.url;
+                    showModal("editModal")
+                } else {
+                    console.log("error")
+                }
+            }
+        }
+        request.responseType = "json";
+        request.open('Get', '/admin/api/sources/'+sourceId);
+        request.send();
+    }
+
+    function showModal(id){
+        const myModal = new bootstrap.Modal(document.getElementById(id));
+        myModal.show()
+    }
+</script>
+
+</body>
+</html>
