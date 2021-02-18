@@ -13,4 +13,6 @@ public interface SourceService {
     Source findById(Integer sourceId);
 
     Source findByName(String name);
+
+    void save(Source source);
 }

@@ -31,4 +31,9 @@ public class SourceServiceImpl implements SourceService {
     public Source findByName(String name) {
         return sourceRepository.findByName(name).orElseThrow(EntityNotFoundException::new);
     }
+
+    @Override
+    public void save(Source source) {
+        sourceRepository.save(source);
+    }
 }
