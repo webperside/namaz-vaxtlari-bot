@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cities</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+          integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="/admin-panel/fragments/navbar :: navbar"></div>
+    <div th:if="${sourceSelected == true}">
+        <h1 class="display-5" th:text="${cities.getContent().get(0).source.name}"></h1>
+        <table class="table">
+            <caption th:text="'Count of cities : ' + ${cities.getContent().size()}"></caption>
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Value</th>
+                <th scope="col">Settlements count</th>
+                <th scope="col">Operation</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="city: ${cities.getContent()}">
+                <th scope="row" th:text="${cityStat.index + 1}"></th>
+                <td th:text="${city.id}"></td>
+                <td th:text="${city.name}"></td>
+                <td th:text="${city.value}"></td>
+                <td th:text="${city.settlements.size()}"></td>
+                <td>
+                    <button type="button" class="btn btn-outline-warning btn-sm"
+                            th:onclick="'javascript:showEditModal('+ ${city.id} +')'">
+                        <i class="far fa-edit"></i>
+                    </button>
+                    <!--                    <button type="button" class="btn btn-outline-info btn-sm"-->
+                    <!--                            th:if="${city.settlements.size() > 1}"-->
+                    <!--                    >-->
+                    <!--                        <i class="fas fa-info"></i>-->
+                    <!--                    </button>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                <li class="page-item" th:classappend="${cities.first} ? 'disabled'">
+                    <a class="page-link" href="#" tabindex="-1"
+
+                       th:href="@{'/admin/cities?sid='+ ${cities.getContent().get(0).source.id} +'&p=' + ${cities.previousOrFirstPageable().getPageNumber()}}">Previous</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link"
+                       th:if="${!cities.first}"
+                       th:text="${cities.previousOrFirstPageable().getPageNumber()} + 1"
+                       th:href="@{'/admin/cities?sid='+ ${cities.getContent().get(0).source.id} +'&p=' + ${cities.previousOrFirstPageable().getPageNumber()}}">
+                    </a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link"
+                       th:text="${cities.getPageable().getPageNumber()} + 1"
+                       th:href="@{'/admin/cities?sid='+ ${cities.getContent().get(0).source.id} +'&p=' + ${cities.getPageable().getPageNumber()}}">
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link"
+                       th:if="${!cities.last}"
+                       th:text="${cities.nextOrLastPageable().getPageNumber() + 1}"
+                       th:href="@{'/admin/cities?sid='+ ${cities.getContent().get(0).source.id} +'&p=' + ${cities.nextOrLastPageable().getPageNumber()}}">
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${cities.last} ? 'disabled'">
+                    <a class="page-link" href="#"
+                       th:href="@{'/admin/cities?sid='+ ${cities.getContent().get(0).source.id} +'&p=' + ${cities.nextOrLastPageable().getPageNumber()}}">Next</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit City and Settlements</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editCityFrom"
+                              th:action="@{'/admin/cities/edit?sid=' + ${cities.getContent().get(0).source.id}}"
+                              th:object="${newCity}" method="post">
+                            <h4>City</h4>
+                            <div class="mb-3">
+                                <label for="editNameInput" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editNameInput" th:field="*{name}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editValueInput" class="form-label">URL</label>
+                                <input type="text" class="form-control" id="editValueInput" readonly
+                                       th:field="*{value}">
+                            </div>
+
+                            <h4>Settlements</h4>
+                            <div id="citySettlements">
+                            </div>
+
+                            <input id="editIdInput" hidden th:field="*{id}">
+                            <input id="editSourceIdInput" hidden th:field="*{sourceId}">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="postRequest()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:unless="${sourceSelected == true}" class="d-flex justify-content-center mt-1">
+        <a th:each="source : ${sources}"
+           type="button"
+           class="btn btn-outline-success"
+           th:text="${source.name}"
+           th:classappend="${!sourceStat.last} ? 'me-1'"
+           th:href="@{'/admin/cities?sid=' + ${source.id}}"
+        ></a>
+    </div>
+
+</div>
+
+<script>
+    function postRequest() {
+        document.getElementById("editCityFrom").submit();
+    }
+
+    function showEditModal(cityId) {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    const response = request.response;
+                    document.getElementById("editIdInput").value = response.id;
+                    document.getElementById("editNameInput").value = response.name;
+                    document.getElementById("editValueInput").value = response.value;
+                    document.getElementById("editSourceIdInput").value = response.sourceId;
+
+                    document.getElementById("citySettlements").innerHTML='';
+
+                    const settlements = response.settlements;
+                    for (var key in settlements) {
+                        const settlement = settlements[key];
+                        var settlementDiv = document.createElement("div");
+                        settlementDiv.innerHTML =
+                            "<div class=\"row g-3 mb-1\">\n" +
+                            "   <div class=\"col-sm-7\">\n" +
+                            "       <input type=\"text\" class=\"form-control\"" +
+                            "              value=\"" + settlement.name + "\"" +
+                            "              name=\"settlements[" + key + "].name\">\n" +
+                            "   </div>\n" +
+                            "   <div class=\"col-sm\">\n" +
+                            "       <input type=\"text\" class=\"form-control\" readonly" +
+                            "              value=\"" + settlement.value + "\"" +
+                            "              name=\"settlements[" + key + "].value\">\n" +
+                            "   </div>\n" +
+                            "   <input id=\"editSettlementIdInput"+ settlement.id +"\" hidden" +
+                            "              value=\"" + settlement.id + "\"\n" +
+                            "              name=\"settlements[" + key + "].id\">\n" +
+                            "</div>"
+                        document.getElementById("citySettlements").appendChild(settlementDiv);
+                    }
+                    showModal("editModal")
+                } else {
+                    console.log("error")
+                }
+            }
+        }
+        request.responseType = "json";
+        request.open('Get', '/admin/api/cities/' + cityId);
+        request.send();
+    }
+
+    function showModal(id) {
+        const myModal = new bootstrap.Modal(document.getElementById(id));
+        myModal.show()
+    }
+</script>
+</body>
+</html>

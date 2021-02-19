@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
+import com.webperside.namazvaxtlaribot.dto.rest.SourceDto;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.SourceService;
@@ -9,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,11 @@ public class SourceServiceImpl implements SourceService {
     @Override
     public Page<Source> getAll(Integer page) {
         return sourceRepository.findAll(PageRequest.of(page, 4));
+    }
+
+    @Override
+    public List<SourceDto> getAllShortInfo(Integer page) {
+        return sourceRepository.findAll().stream().map(source -> SourceDto.builder().id(source.getId()).name(source.getName()).build()).collect(Collectors.toList());
     }
 
     @Override

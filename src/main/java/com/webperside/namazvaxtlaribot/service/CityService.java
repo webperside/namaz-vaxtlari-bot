@@ -9,5 +9,9 @@ public interface CityService {
 
     Page<City> getAllBySourceId(Integer sourceId, Integer page);
 
+    Page<City> getAllBySourceId(Integer sourceId, Integer page, Integer perPage);
+
     City getCityById(Integer cityId);
+
+    void save(City city);
 }
