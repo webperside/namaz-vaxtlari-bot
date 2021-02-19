@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.service;
 
+import com.webperside.namazvaxtlaribot.dto.rest.SourceDto;
 import com.webperside.namazvaxtlaribot.models.Source;
 import org.springframework.data.domain.Page;
 
@@ -9,6 +10,8 @@ import java.util.Optional;
 public interface SourceService {
 
     Page<Source> getAll(Integer page);
+
+    List<SourceDto> getAllShortInfo(Integer page);
 
     Source findById(Integer sourceId);
 
