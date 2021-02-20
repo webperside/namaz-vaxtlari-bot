@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="container">
-    <div th:replace="/admin-panel/fragments/navbar :: navbar"></div>
+    <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
     <table class="table">
         <caption th:text="'Count of users : ' + ${users.size()}"></caption>
         <thead>
