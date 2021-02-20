@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="container">
-    <div th:replace="/admin-panel/fragments/navbar :: navbar"></div>
+    <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
     <div th:if="${sourceSelected == true}">
         <h1 class="display-5" th:text="${cities.getContent().get(0).source.name}"></h1>
         <table class="table">
