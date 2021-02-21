@@ -39,7 +39,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllWithTelegramInfo(Integer page) {
         List<UserDto> userDtoList = new ArrayList<>();
-        Constants.users.forEach(user -> {
+        List<User> users = getAll();
+        users.forEach(user -> {
             UserDto userDto = executor.getUserInfoDetail(Long.parseLong(user.getUserTgId()));
             userDto.setId(user.getId());
 
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(User user) {
         userRepository.save(user);
-        Constants.users = getAll(); // update stored user data
+//        Constants.users = getAll(); // update stored user data
     }
 
     @Override

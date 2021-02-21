@@ -9,4 +9,6 @@ public interface TaskService {
     void storeUserData();
 
     void getPrayTimesFromAhlibeytAz();
+
+    void clearPrayTimeData();
 }
