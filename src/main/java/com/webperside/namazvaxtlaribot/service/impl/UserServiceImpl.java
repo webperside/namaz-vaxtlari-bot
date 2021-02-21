@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
 import com.webperside.namazvaxtlaribot.config.Constants;
+import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.User;
@@ -69,5 +70,10 @@ public class UserServiceImpl implements UserService {
     public void update(User user) {
         userRepository.save(user);
         Constants.users = getAll(); // update stored user data
+    }
+
+    @Override
+    public void sendCustomMessage(SendMessageDto dto) {
+        executor.sendText(Long.parseLong(dto.getUserTgId()),dto.getMessage());
     }
 }

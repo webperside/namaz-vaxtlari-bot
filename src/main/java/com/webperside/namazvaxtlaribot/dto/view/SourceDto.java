@@ -1,4 +1,4 @@
-package com.webperside.namazvaxtlaribot.dto.rest;
+package com.webperside.namazvaxtlaribot.dto.view;
 
 import com.webperside.namazvaxtlaribot.models.Source;
 import lombok.AllArgsConstructor;

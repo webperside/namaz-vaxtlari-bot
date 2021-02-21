@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.service;
 
+import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.models.User;
 
@@ -20,4 +21,6 @@ public interface UserService {
     void save(String tgId);
 
     void update(User user);
+
+    void sendCustomMessage(SendMessageDto dto);
 }
