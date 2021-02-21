@@ -1,9 +1,8 @@
 package com.webperside.namazvaxtlaribot.controller.admin;
 
-import com.webperside.namazvaxtlaribot.dto.rest.CityDto;
-import com.webperside.namazvaxtlaribot.dto.rest.SourceDto;
+import com.webperside.namazvaxtlaribot.dto.view.CityDto;
+import com.webperside.namazvaxtlaribot.dto.view.SourceDto;
 import com.webperside.namazvaxtlaribot.models.City;
-import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.service.CityService;
 import com.webperside.namazvaxtlaribot.service.SourceService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
-import com.webperside.namazvaxtlaribot.dto.rest.SourceDto;
+import com.webperside.namazvaxtlaribot.dto.view.SourceDto;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
 import com.webperside.namazvaxtlaribot.service.SourceService;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

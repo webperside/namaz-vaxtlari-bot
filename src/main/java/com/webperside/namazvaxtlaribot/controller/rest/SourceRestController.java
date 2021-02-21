@@ -1,6 +1,6 @@
 package com.webperside.namazvaxtlaribot.controller.rest;
 
-import com.webperside.namazvaxtlaribot.dto.rest.SourceDto;
+import com.webperside.namazvaxtlaribot.dto.view.SourceDto;
 import com.webperside.namazvaxtlaribot.service.SourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
