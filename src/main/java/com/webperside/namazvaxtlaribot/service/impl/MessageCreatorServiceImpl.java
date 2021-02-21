@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.dto.PrayTimeDto;
 import com.webperside.namazvaxtlaribot.enums.Emoji;
+import com.webperside.namazvaxtlaribot.enums.Month;
 import com.webperside.namazvaxtlaribot.models.City;
 import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.Source;
@@ -20,7 +21,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -515,9 +515,9 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private String getDate() {
         Date now = new Date();
         int month = Integer.parseInt(new SimpleDateFormat("MM").format(now));
-        String monthName = Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, new Locale("az", "AZ"));
+//        String monthName = Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, new Locale("az", "AZ"));
         int day = Integer.parseInt(new SimpleDateFormat("dd").format(now));
-        return day + " " + monthName;
+        return day + " " + Month.getNameByMonth(month).getName();
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {

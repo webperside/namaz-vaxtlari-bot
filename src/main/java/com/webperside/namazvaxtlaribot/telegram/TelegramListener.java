@@ -53,12 +53,14 @@ public class TelegramListener {
                     handler.processRequest(update); // processing
                 } catch (CommandNotFoundException e){ // UI exception
                     printLogException(userId, chatId, e);
+                    alert(userId, e);
 
                     String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
                     helper.executor().sendText(chatId, customMessage);
                     return update.updateId();
                 } catch (EntityNotFoundException e){ // UI exception
                     printLogException(userId, chatId, e);
+                    alert(userId, e);
 
                     String customMessage = messageCreatorService.exceptionMessageCreator(NOT_SPECIAL);
                     if(e.getMessage() != null && e.getMessage().equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
@@ -78,22 +80,27 @@ public class TelegramListener {
                     printLogException(userId, chatId, e);
 
                     // alert
-                    helper.executor().sendText(
-                            ADMIN_TELEGRAM_ID,
-                            String.format(
-                                    ERROR_MESSAGE_TEMPLATE,
-                                    userId,
-                                    e.getClass().getSimpleName(),
-                                    e.getMessage(),
-                                    Arrays.toString(e.getStackTrace())
-                            )
-                    );
+                    alert(userId, e);
+
                     return update.updateId();
                 }
             }
 
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
+    }
+
+    private void alert(Integer userId, Exception e){
+        helper.executor().sendText(
+                ADMIN_TELEGRAM_ID,
+                String.format(
+                        ERROR_MESSAGE_TEMPLATE,
+                        userId,
+                        e.getClass().getSimpleName(),
+                        e.getMessage(),
+                        Arrays.toString(e.getStackTrace())
+                )
+        );
     }
 
     private void printLogException(Integer userId, Long chatId, Exception e){
