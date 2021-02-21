@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
 
+import java.util.Arrays;
+
 import static com.webperside.namazvaxtlaribot.config.Constants.*;
 
 @Component
@@ -26,7 +28,8 @@ public class TelegramListener {
 
     private static final String ERROR_MESSAGE_TEMPLATE = "USER ID - %s\n" +
             "EXCEPTION - %s\n" +
-            "MESSAGE - %s";
+            "MESSAGE - %s\n" +
+            "STACK_TRACE -\n%s";
 
     public void listen() {
         helper.bot().setUpdatesListener(updates -> {
@@ -81,7 +84,8 @@ public class TelegramListener {
                                     ERROR_MESSAGE_TEMPLATE,
                                     userId,
                                     e.getClass().getSimpleName(),
-                                    e.getMessage()
+                                    e.getMessage(),
+                                    Arrays.toString(e.getStackTrace())
                             )
                     );
                     return update.updateId();

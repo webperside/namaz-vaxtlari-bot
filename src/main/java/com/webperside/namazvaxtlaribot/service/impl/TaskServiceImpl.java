@@ -1,29 +1,23 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlTable;
-import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
-import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.webperside.namazvaxtlaribot.config.Constants;
-import com.webperside.namazvaxtlaribot.dto.PrayTimeDto;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.service.*;
+import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 
+import static com.webperside.namazvaxtlaribot.config.Constants.ADMIN_TELEGRAM_ID;
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_AHLIBEYT_AZ;
-import static com.webperside.namazvaxtlaribot.config.Constants.ahlibeytAzTimes;
 
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-    private final UserService userService;
-    private final CityService cityService;
+    private final TelegramHelper.Executor executor;
     private final SourceService sourceService;
     private final WebscrapService webscrapService;
 
@@ -35,12 +29,19 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void storeUserData() {
-        Constants.users = userService.getAll();
+//        Constants.users = userService.getAll();
     }
 
     @Override
     public void getPrayTimesFromAhlibeytAz() {
+        executor.sendText(ADMIN_TELEGRAM_ID, "job : getPrayTimesFromAhlibeytAz");
         Source source = sourceService.findByName(DS_AHLIBEYT_AZ);
         webscrapService.prepareDataForAhlibeytAz(source);
+    }
+
+    @Override
+    public void clearPrayTimeData() {
+        executor.sendText(ADMIN_TELEGRAM_ID, "job : clearPrayTimeData");
+        Constants.prayTimes = new HashMap<>();
     }
 }

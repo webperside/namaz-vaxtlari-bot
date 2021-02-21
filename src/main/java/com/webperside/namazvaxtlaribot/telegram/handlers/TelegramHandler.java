@@ -51,13 +51,15 @@ public class TelegramHandler {
 
         for(Class<?> c : classes){
             String className = c.getSimpleName().toLowerCase();
-            String classPrefix = className.substring(0, prefix.length());
-            String classSuffix = className.substring(prefix.length());
-            if(classPrefix.equals(prefix) &&
-                    (classSuffix.equals(CONSTANT_SUFFIX_CB_HANDLER) || classSuffix.equals(CONSTANT_SUFFIX_HANDLER))){
-                HandlerInterface foundedHandler = initializeHandler(c);
-                endpoints.put(prefix, foundedHandler);
-                return;
+            if(className.length() > prefix.length()){
+                String classPrefix = className.substring(0, prefix.length());
+                String classSuffix = className.substring(prefix.length());
+                if(classPrefix.equals(prefix) &&
+                        (classSuffix.equals(CONSTANT_SUFFIX_CB_HANDLER) || classSuffix.equals(CONSTANT_SUFFIX_HANDLER))){
+                    HandlerInterface foundedHandler = initializeHandler(c);
+                    endpoints.put(prefix, foundedHandler);
+                    return;
+                }
             }
         }
 
