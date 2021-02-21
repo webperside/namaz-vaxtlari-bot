@@ -13,6 +13,8 @@ public interface MessageCreatorService {
 
     MessageDto startCreator(Long userTgId, String from);
 
+    String helpCreator();
+
     String userAlreadyExistCreator(Long userTgId);
 
     MessageDto selectSourceCreator(Integer sourcePage);

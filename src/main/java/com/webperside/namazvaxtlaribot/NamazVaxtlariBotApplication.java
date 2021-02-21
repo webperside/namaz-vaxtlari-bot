@@ -25,6 +25,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
@@ -48,7 +51,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     }
 
     @Override
-    @Transactional
     public void run(String... args) throws Exception {
         listener.listen();
     }

@@ -6,6 +6,8 @@ public enum TelegramCommand {
 
     START("start"),
     VAXTLAR("vaxtlar"),
+    TENZIMLE("tenzimle"),
+    HELP("help"),
     TEST("test");
 
     private final String command;
