@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.time.format.TextStyle;
+import java.util.*;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.*;
 
@@ -53,10 +53,10 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     @Override
     public String exceptionMessageCreator(String filter) {
         String keyword = "telegram.exception.not_special";
-        if(filter.equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
+        if (filter.equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)) {
             keyword = "telegram.exception.settlement_not_found";
         }
-        return messageSource.getMessage(keyword,null, Locale.getDefault());
+        return messageSource.getMessage(keyword, null, Locale.getDefault());
     }
 
     // test methods
@@ -97,6 +97,11 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 .message(startMessage)
                 .markup(markup)
                 .build();
+    }
+
+    @Override
+    public String helpCreator() {
+        return messageSource.getMessage("telegram.command.help", null, Locale.getDefault());
     }
 
     @Override
@@ -367,7 +372,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     public MessageDto prayTimeByUserIdCreator(long userTgId) {
         User user = userService.getByTgId(String.valueOf(userTgId));
         Settlement settlement = user.getSettlement();
-        if(settlement == null){
+        if (settlement == null) {
             throw new EntityNotFoundException(PRAY_TIME_SETTLEMENT_NOT_FOUND);
         }
         return prayTimeCreator(user.getSettlement(), null);
@@ -464,6 +469,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private Object[] paramsForNamazZamaniNet(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
+                getDate(),
                 formatter.format(dto.getImsak()),
                 formatter.format(dto.getGunChixir()),
                 formatter.format(dto.getZohr()),
@@ -492,6 +498,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
+                getDate(),
                 formatter.format(dto.getImsak()),
                 formatter.format(dto.getSubh()),
                 formatter.format(dto.getGunChixir()),
@@ -503,6 +510,14 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 formatter.format(dto.getGeceYarisi()),
                 settlement.getCity().getSource().getName()
         };
+    }
+
+    private String getDate() {
+        Date now = new Date();
+        int month = Integer.parseInt(new SimpleDateFormat("MM").format(now));
+        String monthName = Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, new Locale("az", "AZ"));
+        int day = Integer.parseInt(new SimpleDateFormat("dd").format(now));
+        return day + " " + monthName;
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {

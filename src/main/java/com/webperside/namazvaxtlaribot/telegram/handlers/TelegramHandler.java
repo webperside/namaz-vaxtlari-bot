@@ -130,8 +130,36 @@ public class TelegramHandler {
         public void process(ProcessParams processParams) {
             Update update = processParams.getUpdate();
             Long chatId = update.message().chat().id();
+
+            String waitMessage = messageCreatorService.selectCitySettlementConfirmAfterCreator();
+            executor.sendText(chatId, waitMessage);
+
             MessageDto dto = messageCreatorService.prayTimeByUserIdCreator(chatId);
             executor.sendText(chatId, dto);
+        }
+    }
+
+    public class TenzimleHandler implements HandlerInterface{
+
+        @Override
+        public void process(ProcessParams processParams) {
+            Update update = processParams.getUpdate();
+            Long chatId = update.message().chat().id();
+
+            MessageDto dto = messageCreatorService.selectSourceCreator(0);
+            executor.sendText(chatId, dto);
+        }
+    }
+
+    public class HelpHandler implements HandlerInterface{
+
+        @Override
+        public void process(ProcessParams processParams) {
+            Update update = processParams.getUpdate();
+            Long chatId = update.message().chat().id();
+
+            String msg = messageCreatorService.helpCreator();
+            executor.sendText(chatId, msg);
         }
     }
 
