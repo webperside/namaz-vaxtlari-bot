@@ -23,7 +23,7 @@ public class UserController {
 
     @GetMapping
     public ModelAndView users(ModelAndView modelAndView){
-        List<UserDto> userDtoList = userService.getAllWithTelegramInfo(0);
+        List<UserDto> userDtoList = userService.getAllWithInfo(0);
         modelAndView.addObject("users", userDtoList);
 
         modelAndView.addObject("sendMessage", new SendMessageDto());

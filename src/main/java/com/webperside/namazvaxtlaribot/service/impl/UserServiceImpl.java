@@ -3,6 +3,7 @@ package com.webperside.namazvaxtlaribot.service.impl;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
+import com.webperside.namazvaxtlaribot.dto.view.UserTelegramInfoDto;
 import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
@@ -37,24 +38,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllWithTelegramInfo(Integer page) {
+    public List<UserDto> getAllWithInfo(Integer page) {
         List<UserDto> userDtoList = new ArrayList<>();
         List<User> users = getAll();
         users.forEach(user -> {
-            UserDto userDto = executor.getUserInfoDetail(Long.parseLong(user.getUserTgId()));
-            userDto.setId(user.getId());
 
             Settlement settlement = user.getSettlement();
-            userDto.setSettlement(
-                    UserDto.UserDto_Settlement.builder()
+
+            UserDto dto = UserDto.builder()
+                    .id(user.getId())
+                    .userTelegramId(user.getUserTgId())
+                    .settlement(UserDto.UserDto_Settlement.builder()
                             .id(settlement == null ? Integer.valueOf(0) : settlement.getId())
                             .name(settlement == null ? "n/a" : settlement.getName())
-                            .build()
-            );
+                            .build())
+                    .build();
 
-            userDtoList.add(userDto);
+            userDtoList.add(dto);
         });
         return userDtoList;
+    }
+
+    @Override
+    public UserTelegramInfoDto getTelegramInfoByUserId(String tgId) {
+        return executor.getUserInfoDetail(Long.valueOf(tgId));
     }
 
     @Override

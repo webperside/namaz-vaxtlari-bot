@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.response.GetChatResponse;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
+import com.webperside.namazvaxtlaribot.dto.view.UserTelegramInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -101,7 +102,7 @@ public class TelegramHelper {
             return firstName + (lastName != null ? " " + lastName : "");
         }
 
-        public UserDto getUserInfoDetail(Long userTgId){
+        public UserTelegramInfoDto getUserInfoDetail(Long userTgId){
             GetChatResponse chatResponse = execute(new GetChat(userTgId));
             Chat chat = chatResponse.chat();
             String photoPath = "/images/user-no-photo.jpg";
@@ -112,12 +113,11 @@ public class TelegramHelper {
                 photoPath = bot().getFullFilePath(fileResponse.file());
             }
 
-            return UserDto.builder()
+            return UserTelegramInfoDto.builder()
                     .firstName(chat.firstName())
                     .lastName(chat.lastName())
                     .username(chat.username() != null ? "@"+ chat.username() : "no-username")
                     .photoUrl(photoPath)
-                    .userTelegramId(String.valueOf(chat.id()))
                     .build();
         }
     }
