@@ -30,7 +30,7 @@ public class City {
     @Column(name = "value", length = 50)
     private String value;
 
-    @JoinColumn(name = "source_id", referencedColumnName = "source_id")
+    @JoinColumn(name = "fk_source_id", referencedColumnName = "source_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Source source;
 

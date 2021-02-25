@@ -31,7 +31,7 @@ public class Settlement {
     private String value;
 
     @ManyToOne
-    @JoinColumn(name="city_id", nullable=false)
+    @JoinColumn(name="fk_city_id", nullable=false)
     private City city;
 
 }
