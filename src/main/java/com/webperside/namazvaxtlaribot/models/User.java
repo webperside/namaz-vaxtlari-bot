@@ -7,8 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -36,5 +35,5 @@ public class User {
     private UserStatus userStatus;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "timestamp")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }

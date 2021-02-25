@@ -4,6 +4,7 @@ import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserTelegramInfoDto;
+import com.webperside.namazvaxtlaribot.enums.UserStatus;
 import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
@@ -12,6 +13,8 @@ import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +55,8 @@ public class UserServiceImpl implements UserService {
                             .id(settlement == null ? Integer.valueOf(0) : settlement.getId())
                             .name(settlement == null ? "n/a" : settlement.getName())
                             .build())
+                    .userStatus(user.getUserStatus().getValue())
+                    .createdAt(user.getCreatedAt())
                     .build();
 
             userDtoList.add(dto);
@@ -71,7 +76,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(String tgId) {
-        userRepository.save(User.builder().userTgId(tgId).build());
+        userRepository.save(
+                User.builder()
+                        .userTgId(tgId)
+                        .userStatus(UserStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        );
     }
 
     @Override

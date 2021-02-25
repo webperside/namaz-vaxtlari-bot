@@ -24,6 +24,8 @@
             <th scope="col">ID</th>
             <th scope="col">Telegram ID</th>
             <th scope="col">Settlement</th>
+            <th scope="col">User Status</th>
+            <th scope="col">Created at</th>
             <th scope="col">Operation</th>
         </tr>
         </thead>
@@ -39,6 +41,8 @@
 <!--                <img th:src="@{${user.photoUrl}}" alt="" width="32" height="32" class="d-inline-block rounded-circle">-->
 <!--            </td>-->
             <td th:text="${user.settlement.id + ', ' + user.settlement.name}"></td>
+            <td th:text="${user.userStatus}"></td>
+            <td th:text="${user.createdAt}"></td>
             <td>
                 <button type="button" class="btn btn-outline-primary btn-sm"
                         th:id="${'sendMessageButtonId' + user.id}"
