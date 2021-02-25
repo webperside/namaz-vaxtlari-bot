@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.time.Instant;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
@@ -33,5 +35,6 @@ public class User {
     @Column(name = "user_status", nullable = false, columnDefinition = "tinyint(4) default 1")
     private UserStatus userStatus;
 
-
+    @Column(name = "created_at", updatable = false, columnDefinition = "timestamp")
+    private Instant createdAt;
 }
