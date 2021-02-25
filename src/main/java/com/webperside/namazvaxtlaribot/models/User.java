@@ -1,5 +1,6 @@
 package com.webperside.namazvaxtlaribot.models;
 
+import com.webperside.namazvaxtlaribot.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,11 @@ public class User {
     private String userTgId;
 
     @ManyToOne
-    @JoinColumn(name="settlement_id")
+    @JoinColumn(name="fk_settlement_id")
     private Settlement settlement;
+
+    @Column(name = "user_status", nullable = false, columnDefinition = "tinyint(4) default 1")
+    private UserStatus userStatus;
+
 
 }
