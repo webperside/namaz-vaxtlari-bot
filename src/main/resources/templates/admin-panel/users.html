@@ -16,44 +16,84 @@
 <body>
 <div class="container">
     <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <div class="dropdown">
+            <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+               data-bs-toggle="dropdown" aria-expanded="false"
+               th:text="${sortedBy} != null ? ${sortedBy} : 'Sort by'">
+                Sort by
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                <li><h6 class="dropdown-header">By user status</h6></li>
+                <li>
+                    <a class="dropdown-item" href="/admin/users?sort=userStatus:desc">
+                        First
+                        <span class="badge rounded-pill bg-success">Active</span>
+                        users
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/users?sort=userStatus:asc">
+                        First
+                        <span class="badge rounded-pill bg-danger">Stopped</span>
+                        users
+                    </a>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><h6 class="dropdown-header">By created at</h6></li>
+                <li>
+                    <a class="dropdown-item" href="/admin/users?sort=createdAt:desc">
+                        Last created <i class="fas fa-arrow-down"></i>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/users?sort=createdAt:asc">
+                        Oldest created <i class="fas fa-arrow-up"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
     <table class="table">
-        <caption th:text="'Count of users : ' + ${users.size()}"></caption>
+        <caption th:text="'Count of users : ' + ${users.getContent().size()}"></caption>
         <thead>
         <tr>
             <th scope="col">#</th>
             <th scope="col">ID</th>
             <th scope="col">Telegram ID</th>
             <th scope="col">Settlement</th>
-            <th scope="col">User Status</th>
             <th scope="col">Created at</th>
+            <th scope="col">User Status</th>
             <th scope="col">Operation</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="user: ${users}">
+        <tr th:each="user: ${users.getContent()}">
             <th scope="row" th:text="${userStat.index + 1}"></th>
             <td th:text="${user.id}"></td>
             <td th:text="${user.userTelegramId}"></td>
-<!--            <td th:text="${user.firstName}"></td>-->
-<!--            <td th:text="${user.lastName}"></td>-->
-<!--            <td th:text="${user.username}"></td>-->
-<!--            <td>-->
-<!--                <img th:src="@{${user.photoUrl}}" alt="" width="32" height="32" class="d-inline-block rounded-circle">-->
-<!--            </td>-->
             <td th:text="${user.settlement.id + ', ' + user.settlement.name}"></td>
-            <td th:text="${user.userStatus}"></td>
-            <td th:text="${user.createdAt}"></td>
+            <td th:text="${#temporals.format(user.createdAt,'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <span th:if="${user.userStatus == 1}" class="badge rounded-pill bg-success">Active</span>
+                <span th:unless="${user.userStatus == 1}" class="badge rounded-pill bg-danger">Stopped</span>
+            </td>
             <td>
                 <button type="button" class="btn btn-outline-primary btn-sm"
                         th:id="${'sendMessageButtonId' + user.id}"
                         th:attr="data-user_telegram_id=${user.userTelegramId}"
-                        th:onclick="'javascript:showSendMessageModal('+ ${user.id} +')'">
-                    <i class="fas fa-comment-dots"></i>
+                        th:onclick="'javascript:showSendMessageModal('+ ${user.id} +')'"
+                        th:classappend="${user.userStatus == 0} ? 'disabled'">
+                    <i class="fas fa-comment"></i>
                 </button>
                 <button type="button" class="btn btn-outline-success btn-sm"
                         th:id="${'getTelegramInfoButtonId' + user.id}"
                         th:attr="data-user_telegram_id=${user.userTelegramId}"
-                        th:onclick="'javascript:showTelegramInfoModal('+ ${user.id} +')'">
+                        th:onclick="'javascript:showTelegramInfoModal('+ ${user.id} +')'"
+                        th:classappend="${user.userStatus == 0} ? 'disabled'">
                     <i class="fab fa-telegram"></i>
                 </button>
             </td>
@@ -61,7 +101,47 @@
         </tbody>
     </table>
 
-    <div class="modal fade" id="sendMessageModal" tabindex="-1" aria-labelledby="sendMessageModalLabel" aria-hidden="true">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+            <li class="page-item" th:classappend="${users.first} ? 'disabled'">
+                <a class="page-link" href="#" tabindex="-1"
+
+                   th:href="@{'/admin/users?p='+${users.previousOrFirstPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">Previous</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                   th:if="${!users.first}"
+                   th:text="${users.previousOrFirstPageable().getPageNumber()} + 1"
+                   th:href="@{'/admin/users?p='+${users.previousOrFirstPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">
+                </a>
+            </li>
+            <li class="page-item active">
+                <a class="page-link"
+                   th:text="${users.getPageable().getPageNumber()} + 1"
+                   th:href="@{'/admin/users?p='+${users.getPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                   th:if="${!users.last}"
+                   th:text="${users.nextOrLastPageable().getPageNumber() + 1}"
+                   th:href="@{'/admin/users?p='+${users.nextOrLastPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${users.last} ? 'disabled'">
+                <a class="page-link" href="#"
+                   th:href="@{'/admin/users?p='+${users.nextOrLastPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="modal fade" id="sendMessageModal" tabindex="-1" aria-labelledby="sendMessageModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -69,14 +149,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="sendMessageForm" th:action="@{/admin/users/send-message}" th:object="${sendMessage}" method="post">
+                    <form id="sendMessageForm" th:action="@{/admin/users/send-message}" th:object="${sendMessage}"
+                          method="post">
                         <div class="mb-3">
                             <label for="sendMessageUserTelegramIdInput" class="form-label">User Telegram ID</label>
-                            <input type="text" class="form-control" id="sendMessageUserTelegramIdInput" readonly th:field="*{userTgId}">
+                            <input type="text" class="form-control" id="sendMessageUserTelegramIdInput" readonly
+                                   th:field="*{userTgId}">
                         </div>
                         <div class="mb-3">
                             <label for="sendMessageCustomMessageInput" class="form-label">Message</label>
-                            <textarea class="form-control" id="sendMessageCustomMessageInput" rows="6" th:field="*{message}"></textarea>
+                            <textarea class="form-control" id="sendMessageCustomMessageInput" rows="6"
+                                      th:field="*{message}"></textarea>
                         </div>
                     </form>
                 </div>
@@ -88,7 +171,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="telegramInfoModal" tabindex="-1" aria-labelledby="telegramInfoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="telegramInfoModal" tabindex="-1" aria-labelledby="telegramInfoModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -98,7 +182,8 @@
                 <div class="modal-body">
                     <div class="d-flex bd-highlight">
                         <div class="p-2 bd-highlight">
-                            <img src="" alt="" width="128" height="128" class="d-inline-block rounded-circle" id="telegramInfoPhotoUrlImg">
+                            <img src="" alt="" width="128" height="128" class="d-inline-block rounded-circle"
+                                 id="telegramInfoPhotoUrlImg">
                         </div>
                         <div class="p-2 flex-grow-1 bd-highlight">
                             <div class="mb-3">
@@ -128,25 +213,25 @@
 
 <script>
 
-    function postRequest(){
+    function postRequest() {
         document.getElementById("sendMessageForm").submit();
     }
 
-    function showSendMessageModal(userId){
+    function showSendMessageModal(userId) {
         document.getElementById("sendMessageUserTelegramIdInput").value =
             document.getElementById("sendMessageButtonId" + userId).getAttribute("data-user_telegram_id");
         showModal("sendMessageModal")
     }
 
-    function showTelegramInfoModal(userId){
+    function showTelegramInfoModal(userId) {
         const userTgId = document
             .getElementById("getTelegramInfoButtonId" + userId)
             .getAttribute("data-user_telegram_id");
 
         const request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-            if(request.readyState === 4) {
-                if(request.status === 200) {
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
                     const response = request.response;
                     document.getElementById("telegramInfoFirstNameInput").value = response.firstName;
                     document.getElementById("telegramInfoLastNameInput").value = response.lastName;
@@ -159,11 +244,11 @@
             }
         }
         request.responseType = "json";
-        request.open('Get', '/admin/api/users/'+userTgId);
+        request.open('Get', '/admin/api/users/' + userTgId);
         request.send();
     }
 
-    function showModal(id){
+    function showModal(id) {
         const myModal = new bootstrap.Modal(document.getElementById(id));
         myModal.show()
     }

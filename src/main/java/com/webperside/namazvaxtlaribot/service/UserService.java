@@ -4,8 +4,11 @@ import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserTelegramInfoDto;
 import com.webperside.namazvaxtlaribot.models.User;
+import org.springframework.data.domain.Page;
 
+import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -13,9 +16,9 @@ public interface UserService {
 
     User getByTgId(String tgId);
 
-    List<User> getAll();
+    Page<User> getAll(Integer page, String[] sortParams);
 
-    List<UserDto> getAllWithInfo(Integer page);
+    Page<UserDto> getAllWithInfo(Integer page, String[] sortParams);
 
     UserTelegramInfoDto getTelegramInfoByUserId(String tgId);
 

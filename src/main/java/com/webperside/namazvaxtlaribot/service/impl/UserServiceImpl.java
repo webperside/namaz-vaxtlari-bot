@@ -11,12 +11,16 @@ import com.webperside.namazvaxtlaribot.repository.UserRepository;
 import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.criterion.Order;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +40,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public Page<User> getAll(Integer page, String[] sortParams) {
+        Sort sort = null;
+        Sort.Direction direction = Sort.Direction.ASC;;
+        if(isSortable(sortParams[0])){
+            try{
+                direction = Sort.Direction.fromString(sortParams[1]);
+            } catch (Exception ignored){
+            } finally {
+                sort = Sort.by(direction, sortParams[0]);
+            }
+        } else {
+            sort = Sort.unsorted();
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, sort);
+        return userRepository.findAll(pageable);
     }
 
     @Override
-    public List<UserDto> getAllWithInfo(Integer page) {
+    public Page<UserDto> getAllWithInfo(Integer page, String[] sortParams) {
         List<UserDto> userDtoList = new ArrayList<>();
-        List<User> users = getAll();
-        users.forEach(user -> {
+        Page<User> users = getAll(page, sortParams);
+        users.getContent().forEach(user -> {
 
             Settlement settlement = user.getSettlement();
 
@@ -61,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
             userDtoList.add(dto);
         });
-        return userDtoList;
+        return new PageImpl<>(userDtoList, users.getPageable(), users.getTotalElements());
     }
 
     @Override
@@ -94,5 +112,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendCustomMessage(SendMessageDto dto) {
         executor.sendText(Long.parseLong(dto.getUserTgId()),dto.getMessage());
+    }
+
+    private boolean isSortable(String param){
+        List<String> params = Arrays.asList(
+                "createdAt","userStatus"
+        );
+        return params.contains(param);
     }
 }

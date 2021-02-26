@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Builder
 @Table(name = "user")
+@FieldNameConstants
 public class User {
 
     @Id
