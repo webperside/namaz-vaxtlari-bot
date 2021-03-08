@@ -10,6 +10,7 @@ import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.repository.CityRepository;
 import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
 import com.webperside.namazvaxtlaribot.repository.SourceRepository;
+import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.service.SettlementService;
 import com.webperside.namazvaxtlaribot.service.WebscrapService;
@@ -43,6 +44,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
     private final SourceRepository sourceRepository;
     private final SettlementService settlementService;
     private final MessageCreatorService messageCreatorService;
+    private final ActionLogService actionLogService;
 
     private final TelegramListener listener;
 

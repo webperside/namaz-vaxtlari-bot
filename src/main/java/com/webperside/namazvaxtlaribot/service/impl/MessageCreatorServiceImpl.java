@@ -515,7 +515,6 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private String getDate() {
         Date now = new Date();
         int month = Integer.parseInt(new SimpleDateFormat("MM").format(now));
-//        String monthName = Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, new Locale("az", "AZ"));
         int day = Integer.parseInt(new SimpleDateFormat("dd").format(now));
         return day + " " + Month.getNameByMonth(month).getName();
     }

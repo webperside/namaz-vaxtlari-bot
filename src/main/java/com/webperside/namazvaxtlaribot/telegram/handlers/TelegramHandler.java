@@ -3,6 +3,7 @@ package com.webperside.namazvaxtlaribot.telegram.handlers;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
+import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
@@ -26,6 +27,7 @@ public class TelegramHandler {
     // todo blogda bunun haqqda yaz
     
     private final MessageCreatorService messageCreatorService;
+    private final ActionLogService actionLogService;
     private final TelegramHelper.Executor executor;
     private final HashMap<String, HandlerInterface> endpoints = new HashMap<>();
     private static final String CONSTANT_SUFFIX_HANDLER = "handler";
@@ -115,12 +117,15 @@ public class TelegramHandler {
             if(alreadyExist != null){
 
                 executor.sendText(chatId, alreadyExist);
+                actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "already exist");
                 return ;
             }
 
             String from = executor.getUserInfo(update.message().from());
             MessageDto messageDto = messageCreatorService.startCreator(chatId, from);
             executor.sendText(chatId, messageDto);
+
+            actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "");
         }
     }
 
@@ -136,6 +141,8 @@ public class TelegramHandler {
 
             MessageDto dto = messageCreatorService.prayTimeByUserIdCreator(chatId);
             executor.sendText(chatId, dto);
+
+            actionLogService.successLog(String.valueOf(chatId),TelegramCommand.VAXTLAR, "");
         }
     }
 
@@ -148,6 +155,8 @@ public class TelegramHandler {
 
             MessageDto dto = messageCreatorService.selectSourceCreator(0);
             executor.sendText(chatId, dto);
+
+            actionLogService.successLog(String.valueOf(chatId),TelegramCommand.TENZIMLE, "");
         }
     }
 
@@ -160,6 +169,8 @@ public class TelegramHandler {
 
             String msg = messageCreatorService.helpCreator();
             executor.sendText(chatId, msg);
+
+            actionLogService.successLog(String.valueOf(chatId),TelegramCommand.HELP, "");
         }
     }
 

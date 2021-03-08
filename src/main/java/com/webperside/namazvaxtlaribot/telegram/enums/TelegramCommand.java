@@ -4,6 +4,7 @@ import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundExcept
 
 public enum TelegramCommand {
 
+    UNDEFINED("undefined"),
     START("start"),
     VAXTLAR("vaxtlar"),
     TENZIMLE("tenzimle"),
@@ -31,5 +32,12 @@ public enum TelegramCommand {
             }
         }
         throw new CommandNotFoundException(String.format("%s command not found",command));
+    }
+
+    public static String getValue(int index) throws CommandNotFoundException{
+        if(index < values().length && index >= 0){
+            return values()[index].getCommand();
+        }
+        return values()[0].getValue();
     }
 }

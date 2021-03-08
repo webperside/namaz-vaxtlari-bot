@@ -2,6 +2,7 @@ package com.webperside.namazvaxtlaribot.enums;
 
 public enum Month {
 
+    UNDEFINED(0, "Undefined"),
     JANUARY(1, "Yanvar"),
     FEBRUARY(2, "Fevral"),
     MARCH(3, "Mart"),
@@ -37,6 +38,6 @@ public enum Month {
                 return m;
             }
         }
-        return null;
+        return UNDEFINED;
     }
 }
