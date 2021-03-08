@@ -3,8 +3,10 @@ package com.webperside.namazvaxtlaribot.telegram;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
+import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
 import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
+import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundException;
 import com.webperside.namazvaxtlaribot.telegram.handlers.TelegramHandler;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class TelegramListener {
     private final TelegramHelper helper;
     private final TelegramHandler handler;
     private final MessageCreatorService messageCreatorService;
+    private final ActionLogService actionLogService;
 
     private static final String ERROR_MESSAGE_TEMPLATE = "USER ID - %s\n" +
             "EXCEPTION - %s\n" +
@@ -57,6 +60,7 @@ public class TelegramListener {
 
                     String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
                     helper.executor().sendText(chatId, customMessage);
+                    actionLogService.failedLog(String.valueOf(userId), TelegramCommand.UNDEFINED, e.getMessage());
                     return update.updateId();
                 } catch (EntityNotFoundException e){ // UI exception
                     printLogException(userId, chatId, e);
@@ -72,6 +76,9 @@ public class TelegramListener {
                     } else{
                         helper.executor().sendText(chatId, customMessage);
                     }
+
+                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
+
                     return update.updateId();
                 } catch (Exception e) { // technical exception
 
@@ -82,6 +89,7 @@ public class TelegramListener {
                     // alert
                     alert(userId, e);
 
+                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
                     return update.updateId();
                 }
             }

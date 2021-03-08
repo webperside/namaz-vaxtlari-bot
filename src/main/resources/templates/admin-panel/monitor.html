@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+          integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
+
+    <table class="table">
+        <caption th:text="'Count of logs : ' + ${actions.getContent().size()}"></caption>
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">ID</th>
+            <th scope="col">Telegram ID</th>
+            <th scope="col">Command</th>
+            <th scope="col">Created at</th>
+            <th scope="col">Message</th>
+            <th scope="col">Status</th>
+            <th scope="col">Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="action: ${actions.getContent()}">
+            <th scope="row" th:text="${actionStat.index + 1}"></th>
+            <td th:text="${action.id}"></td>
+            <td th:text="${action.userTelegramId}"></td>
+            <td th:text="${action.command}"></td>
+            <td th:text="${#temporals.format(action.createdAt,'dd-MM-yyyy HH:mm')}"></td>
+            <td th:text="${action.message}"></td>
+            <td>
+                <span th:if="${action.status == 1}" class="badge rounded-pill bg-success">Success</span>
+                <span th:unless="${action.status == 1}" class="badge rounded-pill bg-danger">Failed</span>
+            </td>
+            <td>
+<!--                <button type="button" class="btn btn-outline-primary btn-sm"-->
+<!--                        th:id="${'sendMessageButtonId' + user.id}"-->
+<!--                        th:attr="data-user_telegram_id=${user.userTelegramId}"-->
+<!--                        th:onclick="'javascript:showSendMessageModal('+ ${user.id} +')'"-->
+<!--                        th:classappend="${user.userStatus == 0} ? 'disabled'"-->
+<!--                >-->
+<!--                    <i class="fas fa-comment"></i>-->
+<!--                </button>-->
+<!--                <button type="button" class="btn btn-outline-success btn-sm"-->
+<!--                        th:id="${'getTelegramInfoButtonId' + user.id}"-->
+<!--                        th:attr="data-user_telegram_id=${user.userTelegramId}"-->
+<!--                        th:onclick="'javascript:showTelegramInfoModal('+ ${user.id} +')'"-->
+<!--                        th:classappend="${user.userStatus == 0} ? 'disabled'"-->
+<!--                >-->
+<!--                    <i class="fab fa-telegram"></i>-->
+<!--                </button>-->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+            <li class="page-item" th:classappend="${actions.first} ? 'disabled'">
+                <a class="page-link" href="#" tabindex="-1"
+
+                   th:href="@{'/admin/monitor?p='+${actions.previousOrFirstPageable().getPageNumber()}}">Previous</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                   th:if="${!actions.first}"
+                   th:text="${actions.previousOrFirstPageable().getPageNumber()} + 1"
+                   th:href="@{'/admin/monitor?p='+${actions.previousOrFirstPageable().getPageNumber()}}">
+                </a>
+            </li>
+            <li class="page-item active">
+                <a class="page-link"
+                   th:text="${actions.getPageable().getPageNumber()} + 1"
+                   th:href="@{'/admin/monitor?p='+${actions.getPageable().getPageNumber()}}">
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                   th:if="${!actions.last}"
+                   th:text="${actions.nextOrLastPageable().getPageNumber() + 1}"
+                   th:href="@{'/admin/monitor?p='+${actions.nextOrLastPageable().getPageNumber()}
+                   + '&sort=' + ${sortParam}}">
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${actions.last} ? 'disabled'">
+                <a class="page-link" href="#"
+                   th:href="@{'/admin/monitor?p='+${actions.nextOrLastPageable().getPageNumber()}}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>

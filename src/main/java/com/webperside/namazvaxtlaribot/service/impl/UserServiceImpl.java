@@ -1,6 +1,5 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
-import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.dto.view.SendMessageDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserDto;
 import com.webperside.namazvaxtlaribot.dto.view.UserTelegramInfoDto;
@@ -10,17 +9,15 @@ import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.repository.UserRepository;
 import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
+import com.webperside.namazvaxtlaribot.util.SortParams;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.criterion.Order;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +25,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final TelegramHelper.Executor executor;
+
+    @Override
+    public Integer getUserIdByUserTgId(String userTgId) {
+        return userRepository.findUserIdByUserTgId(userTgId);
+    }
 
     @Override
     public User getById(Integer id) {
@@ -41,20 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getAll(Integer page, String[] sortParams) {
-        Sort sort = null;
-        Sort.Direction direction = Sort.Direction.ASC;;
-        if(isSortable(sortParams[0])){
-            try{
-                direction = Sort.Direction.fromString(sortParams[1]);
-            } catch (Exception ignored){
-            } finally {
-                sort = Sort.by(direction, sortParams[0]);
-            }
-        } else {
-            sort = Sort.unsorted();
-        }
-
-        Pageable pageable = PageRequest.of(page, 10, sort);
+        Pageable pageable = SortParams.createRequest(page, 10, sortParams);
         return userRepository.findAll(pageable);
     }
 
@@ -112,12 +101,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendCustomMessage(SendMessageDto dto) {
         executor.sendText(Long.parseLong(dto.getUserTgId()),dto.getMessage());
-    }
-
-    private boolean isSortable(String param){
-        List<String> params = Arrays.asList(
-                "createdAt","userStatus"
-        );
-        return params.contains(param);
     }
 }

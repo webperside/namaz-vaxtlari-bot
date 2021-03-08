@@ -12,6 +12,8 @@ import java.util.Map;
 
 public interface UserService {
 
+    Integer getUserIdByUserTgId(String userTgId);
+
     User getById(Integer id);
 
     User getByTgId(String tgId);
