@@ -41,6 +41,7 @@ public class TelegramListener {
 
             for (Update update : updates) {
                 RequestType request = RequestType.determineRequest(update);
+System.out.println(update);
 System.out.println(update.message());
                 Integer userId = request.equals(RequestType.UPDATE) ?
                         update.message().from().id() :
