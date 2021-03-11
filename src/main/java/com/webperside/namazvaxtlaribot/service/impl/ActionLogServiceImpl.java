@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.service.impl;
 
 import com.webperside.namazvaxtlaribot.dto.view.ActionLogDto;
+import com.webperside.namazvaxtlaribot.dto.view.ReportDto;
 import com.webperside.namazvaxtlaribot.enums.ActionLogStatus;
 import com.webperside.namazvaxtlaribot.models.ActionLog;
 import com.webperside.namazvaxtlaribot.models.User;
@@ -10,13 +11,14 @@ import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.util.SortParams;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +77,19 @@ public class ActionLogServiceImpl implements ActionLogService {
         });
 
         return new PageImpl<>(actions, actionLogs.getPageable(), actionLogs.getTotalElements());
+    }
+
+    @Override
+    public ReportDto reportActionLog() {
+        List<Integer> countSuccess = actionLogRepository.findAllByStatusAndGroupByUserId(ActionLogStatus.SUCCESS);
+        List<Integer> countFailed = actionLogRepository.findAllByStatusAndGroupByUserId(ActionLogStatus.FAILED);
+
+        List<Integer> countVaxtlarCommand = actionLogRepository.findAllByCommandAndGroupByUserId(TelegramCommand.VAXTLAR);
+
+        return ReportDto.builder()
+                .success(ReportDto.Report_ActionLogDto.fromIntegerList(countSuccess))
+                .failed(ReportDto.Report_ActionLogDto.fromIntegerList(countFailed))
+                .commandVaxtlar(ReportDto.Report_ActionLogDto.fromIntegerList(countVaxtlarCommand))
+                .build();
     }
 }

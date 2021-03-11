@@ -13,9 +13,52 @@
           integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
           crossorigin="anonymous"/>
 </head>
-<body>
+<body onload="loadReports()">
 <div class="container">
     <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
+
+    <div id="dashboard" class="d-flex flex-row bd-highlight mb-3 justify-content-center">
+        <div class="p-2 bd-highlight" style="width: 30%">
+            <div class="card text-white bg-success mb-3" style="width: 100%;">
+                <div class="card-header">Successfully</div>
+                <div class="card-body" id="successBody">
+                    <div class="d-flex align-items-center">
+                        <strong>Loading...</strong>
+                        <div class="spinner-grow text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-2 bd-highlight" style="width: 30%">
+            <div class="card text-white bg-primary mb-3" style="width: 100%;">
+                <div class="card-header">/vaxtlar</div>
+                <div class="card-body" id="vaxtlarBody">
+                    <div class="d-flex align-items-center">
+                        <strong>Loading...</strong>
+                        <div class="spinner-grow text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-2 bd-highlight" style="width: 30%">
+            <div class="card text-white bg-danger mb-3" style="width: 100%;">
+                <div class="card-header">Failed</div>
+                <div class="card-body" id="failedBody">
+                    <div class="d-flex align-items-center">
+                        <strong>Loading...</strong>
+                        <div class="spinner-grow text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <table class="table">
         <caption th:text="'Count of logs : ' + ${actions.getContent().size()}"></caption>
@@ -100,6 +143,38 @@
         </ul>
     </nav>
 </div>
+<script>
+    function loadReports(){
 
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    const response = request.response;
+                    document.getElementById("successBody").innerHTML =
+                        "<h5 class=\"card-title\">Total count is <span id=\"successCount\"></span></h5>\n" +
+                        "<p class=\"card-text\">Total <span id=\"successCountUnique\"></span> unique users</p>";
+                    document.getElementById("vaxtlarBody").innerHTML =
+                        "<h5 class=\"card-title\">Total count is <span id=\"vaxtlarCount\"></span></h5>\n" +
+                        "<p class=\"card-text\">Total <span id=\"vaxtlarCountUnique\"></span> unique users</p>";
+                    document.getElementById("failedBody").innerHTML =
+                        "<h5 class=\"card-title\">Total count is <span id=\"failedCount\"></span></h5>\n" +
+                        "<p class=\"card-text\">Total <span id=\"failedCountUnique\"></span> unique users</p>"
+                    document.getElementById("successCount").innerHTML = response.success.used;
+                    document.getElementById("successCountUnique").innerHTML = response.success.uniqueUsersCount;
+                    document.getElementById("failedCount").innerHTML = response.failed.used;
+                    document.getElementById("failedCountUnique").innerHTML = response.failed.uniqueUsersCount;
+                    document.getElementById("vaxtlarCount").innerHTML = response.commandVaxtlar.used;
+                    document.getElementById("vaxtlarCountUnique").innerHTML = response.commandVaxtlar.uniqueUsersCount;
+                } else {
+                    console.log("error")
+                }
+            }
+        }
+        request.responseType = "json";
+        request.open('Get', '/admin/api/monitor/');
+        request.send();
+    }
+</script>
 </body>
 </html>
