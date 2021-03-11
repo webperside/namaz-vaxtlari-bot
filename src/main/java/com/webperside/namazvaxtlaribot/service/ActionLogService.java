@@ -1,6 +1,7 @@
 package com.webperside.namazvaxtlaribot.service;
 
 import com.webperside.namazvaxtlaribot.dto.view.ActionLogDto;
+import com.webperside.namazvaxtlaribot.dto.view.ReportDto;
 import com.webperside.namazvaxtlaribot.enums.ActionLogStatus;
 import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,6 @@ public interface ActionLogService {
     void log(String userTgId, TelegramCommand command, ActionLogStatus actionLogStatus, String message);
 
     Page<ActionLogDto> findAllBySearchParams(Integer page, String[] sortParams, Map<String,String> searchParams);
+
+    ReportDto reportActionLog();
 }
