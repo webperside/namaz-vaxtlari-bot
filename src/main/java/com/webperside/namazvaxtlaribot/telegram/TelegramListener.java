@@ -43,7 +43,7 @@ public class TelegramListener {
                 if(update.message() == null && update.callbackQuery() == null){
                     helper.executor().sendText(
                             ADMIN_TELEGRAM_ID,
-                            "The request did not come from Telegram"
+                            update.toString()
                     );
                     actionLogService.failedLog(
                             String.valueOf(ADMIN_TELEGRAM_ID),
@@ -89,7 +89,7 @@ public class TelegramListener {
                         helper.executor().sendText(chatId, customMessage);
                     }
 
-                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
+                    actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
 
                     return update.updateId();
                 } catch (Exception e) { // technical exception
@@ -101,7 +101,7 @@ public class TelegramListener {
                     // alert
                     alert(userId, e);
 
-                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
+                    actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
                     return update.updateId();
                 }
             }
