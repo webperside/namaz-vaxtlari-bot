@@ -89,6 +89,10 @@ public class TelegramHandler {
         } else {
             String text = update.message().text();
 
+            if(text == null){
+                throw new CommandNotFoundException("/undefined command not found");
+            }
+
             handle(text).run(update, null, new HashMap<>());
 
         }

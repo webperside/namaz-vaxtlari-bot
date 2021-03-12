@@ -29,7 +29,8 @@ public class TelegramListener {
     private final MessageCreatorService messageCreatorService;
     private final ActionLogService actionLogService;
 
-    private static final String ERROR_MESSAGE_TEMPLATE = "USER ID - %s\n" +
+    private static final String ERROR_MESSAGE_TEMPLATE =
+            "CHAT/USER ID - %s\n" +
             "EXCEPTION - %s\n" +
             "MESSAGE - %s\n" +
             "STACK_TRACE -\n%s";
@@ -39,83 +40,101 @@ public class TelegramListener {
 
             log.info("Updates size : [{}]", updates.size());
 
-            for (Update update : updates) {
-                if(update.message() == null && update.callbackQuery() == null){
-                    helper.executor().sendText(
-                            ADMIN_TELEGRAM_ID,
-                            update.toString()
-                    );
-                    actionLogService.failedLog(
-                            String.valueOf(ADMIN_TELEGRAM_ID),
-                            TelegramCommand.UNDEFINED,
-                            "The request did not come from Telegram"
-                    );
-                    continue;
-                }
-                RequestType request = RequestType.determineRequest(update);
+            try{
+                for (Update update : updates) {
+                    if(!checkForwardIsOk(update)) continue;
 
-                Integer userId = request.equals(RequestType.UPDATE) ?
-                        update.message().from().id() :
-                        update.callbackQuery().from().id();
+                    RequestType request = RequestType.determineRequest(update);
 
-                Long chatId = request.equals(RequestType.UPDATE) ?
-                        update.message().chat().id() :
-                        update.callbackQuery().message().chat().id();
+                    Long chatId = request.equals(RequestType.UPDATE) ?
+                            update.message().chat().id() :
+                            update.callbackQuery().message().chat().id();
 
-                log.info("Working on Update ID : [{}], User ID : [{}], Chat ID : [{}], RequestType : [{}]", update.updateId(), userId, chatId, request.name());
+                    log.info("Working on Update ID : [{}], Chat/User ID : [{}], RequestType : [{}]", update.updateId(), chatId, request.name());
 
-                try {
-                    handler.processRequest(update); // processing
-                } catch (CommandNotFoundException e){ // UI exception
-                    printLogException(userId, chatId, e);
-                    alert(userId, e);
-
-                    String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
-                    helper.executor().sendText(chatId, customMessage);
-                    actionLogService.failedLog(String.valueOf(userId), TelegramCommand.UNDEFINED, e.getMessage());
-                    return update.updateId();
-                } catch (EntityNotFoundException e){ // UI exception
-                    printLogException(userId, chatId, e);
-                    alert(userId, e);
-
-                    String customMessage = messageCreatorService.exceptionMessageCreator(NOT_SPECIAL);
-                    if(e.getMessage() != null && e.getMessage().equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
-                        customMessage = messageCreatorService.exceptionMessageCreator(PRAY_TIME_SETTLEMENT_NOT_FOUND);
-                        helper.executor().sendText(chatId, customMessage);
-
-                        MessageDto registerNotCompleted = messageCreatorService.selectSourceCreator(0);
-                        helper.executor().sendText(chatId, registerNotCompleted);
-                    } else{
-                        helper.executor().sendText(chatId, customMessage);
+                    try {
+                        handler.processRequest(update); // processing
+                    } catch (CommandNotFoundException e){ // UI exception
+                        return catchCommandNotFoundException(update, chatId, e); // return updateId
+                    } catch (EntityNotFoundException e){ // UI exception
+                        return catchEntityNotFoundException(update, chatId, e); // return updateId
+                    } catch (Exception e) { // technical exception
+                        return catchException(update, chatId, e); // return updateId
                     }
-
-                    actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
-
-                    return update.updateId();
-                } catch (Exception e) { // technical exception
-
-                    e.printStackTrace();
-
-                    printLogException(userId, chatId, e);
-
-                    // alert
-                    alert(userId, e);
-
-                    actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
-                    return update.updateId();
                 }
+                return UpdatesListener.CONFIRMED_UPDATES_ALL;
+            } catch (Exception iDontKnow){
+                iDontKnow.printStackTrace();
+                return UpdatesListener.CONFIRMED_UPDATES_NONE;
             }
-
-            return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
-    private void alert(Integer userId, Exception e){
+    private boolean checkForwardIsOk(Update update){
+        if(update.message() == null && update.callbackQuery() == null){
+            helper.executor().sendText(
+                    ADMIN_TELEGRAM_ID,
+                    update.toString()
+            );
+            actionLogService.failedLog(
+                    String.valueOf(ADMIN_TELEGRAM_ID),
+                    TelegramCommand.UNDEFINED,
+                    "The request did not come from Telegram"
+            );
+            return false;
+        }
+        return true;
+    }
+
+    private Integer catchCommandNotFoundException(Update update, Long chatId, CommandNotFoundException e){
+        printLogException(chatId, e);
+        alert(chatId, e);
+
+        String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
+        helper.executor().sendText(chatId, customMessage);
+        actionLogService.failedLog(String.valueOf(chatId), TelegramCommand.UNDEFINED, e.getMessage());
+        return update.updateId();
+    }
+
+    private Integer catchEntityNotFoundException(Update update, Long chatId, EntityNotFoundException e){
+        printLogException(chatId, e);
+        alert(chatId, e);
+
+        String customMessage = messageCreatorService.exceptionMessageCreator(NOT_SPECIAL);
+        if(e.getMessage() != null && e.getMessage().equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
+            customMessage = messageCreatorService.exceptionMessageCreator(PRAY_TIME_SETTLEMENT_NOT_FOUND);
+            helper.executor().sendText(chatId, customMessage);
+
+            MessageDto registerNotCompleted = messageCreatorService.selectSourceCreator(0);
+            helper.executor().sendText(chatId, registerNotCompleted);
+        } else{
+            helper.executor().sendText(chatId, customMessage);
+        }
+
+        actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
+
+        return update.updateId();
+
+    }
+
+    private Integer catchException(Update update, Long chatId, Exception e){
+        e.printStackTrace();
+
+        printLogException(chatId, e);
+
+        // alert
+        alert(chatId, e);
+
+        actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
+        return update.updateId();
+    }
+
+    private void alert(Long chatId, Exception e){
         helper.executor().sendText(
                 ADMIN_TELEGRAM_ID,
                 String.format(
                         ERROR_MESSAGE_TEMPLATE,
-                        userId,
+                        chatId,
                         e.getClass().getSimpleName(),
                         e.getMessage(),
                         Arrays.toString(e.getStackTrace())
@@ -123,8 +142,8 @@ public class TelegramListener {
         );
     }
 
-    private void printLogException(Integer userId, Long chatId, Exception e){
-        log.error("User ID [{}], Chat ID [{}], Exception [{}], Message [{}]", userId, chatId, e.getClass().getSimpleName(), e.getMessage());
+    private void printLogException(Long chatId, Exception e){
+        log.error("Chat/User ID [{}], Exception [{}], Message [{}]", chatId, e.getClass().getSimpleName(), e.getMessage());
     }
 
 }

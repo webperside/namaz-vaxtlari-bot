@@ -11,6 +11,7 @@ import com.webperside.namazvaxtlaribot.models.Settlement;
 import com.webperside.namazvaxtlaribot.models.Source;
 import com.webperside.namazvaxtlaribot.models.User;
 import com.webperside.namazvaxtlaribot.service.*;
+import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.util.Params;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -44,6 +45,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
 
     @Override
     public String commandNotFoundCreator(String command) {
+        if(command == null) command = TelegramCommand.UNDEFINED.getCommand();
         return messageSource.getMessage(
                 "telegram.command.not_found",
                 new Object[]{command},
