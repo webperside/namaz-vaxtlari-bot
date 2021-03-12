@@ -40,15 +40,15 @@ public class TelegramListener {
             log.info("Updates size : [{}]", updates.size());
 
             for (Update update : updates) {
-                if(update.message() == null || update.callbackQuery() == null){
+                if(update.message() == null && update.callbackQuery() == null){
                     helper.executor().sendText(
                             ADMIN_TELEGRAM_ID,
-                            "Telegram Exception. The request did not come from Telegram"
+                            "The request did not come from Telegram"
                     );
                     actionLogService.failedLog(
                             String.valueOf(ADMIN_TELEGRAM_ID),
                             TelegramCommand.UNDEFINED,
-                            "Telegram Exception. The request did not come from Telegram"
+                            "The request did not come from Telegram"
                     );
                     continue;
                 }
