@@ -71,7 +71,6 @@
             <th scope="col">Created at</th>
             <th scope="col">Message</th>
             <th scope="col">Status</th>
-            <th scope="col">Operation</th>
         </tr>
         </thead>
         <tbody>
@@ -85,24 +84,6 @@
             <td>
                 <span th:if="${action.status == 1}" class="badge rounded-pill bg-success">Success</span>
                 <span th:unless="${action.status == 1}" class="badge rounded-pill bg-danger">Failed</span>
-            </td>
-            <td>
-<!--                <button type="button" class="btn btn-outline-primary btn-sm"-->
-<!--                        th:id="${'sendMessageButtonId' + user.id}"-->
-<!--                        th:attr="data-user_telegram_id=${user.userTelegramId}"-->
-<!--                        th:onclick="'javascript:showSendMessageModal('+ ${user.id} +')'"-->
-<!--                        th:classappend="${user.userStatus == 0} ? 'disabled'"-->
-<!--                >-->
-<!--                    <i class="fas fa-comment"></i>-->
-<!--                </button>-->
-<!--                <button type="button" class="btn btn-outline-success btn-sm"-->
-<!--                        th:id="${'getTelegramInfoButtonId' + user.id}"-->
-<!--                        th:attr="data-user_telegram_id=${user.userTelegramId}"-->
-<!--                        th:onclick="'javascript:showTelegramInfoModal('+ ${user.id} +')'"-->
-<!--                        th:classappend="${user.userStatus == 0} ? 'disabled'"-->
-<!--                >-->
-<!--                    <i class="fab fa-telegram"></i>-->
-<!--                </button>-->
             </td>
         </tr>
         </tbody>
@@ -142,6 +123,45 @@
             </li>
         </ul>
     </nav>
+
+    <div class="modal fade" id="telegramInfoModal" tabindex="-1" aria-labelledby="telegramInfoModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="telegramInfoModalLabel">User Telegram Info</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex bd-highlight">
+                        <div class="p-2 bd-highlight">
+                            <img src="" alt="" width="128" height="128" class="d-inline-block rounded-circle"
+                                 id="telegramInfoPhotoUrlImg">
+                        </div>
+                        <div class="p-2 flex-grow-1 bd-highlight">
+                            <div class="mb-3">
+                                <label for="telegramInfoFirstNameInput" class="form-label">First name</label>
+                                <input type="text" class="form-control" id="telegramInfoFirstNameInput" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telegramInfoLastNameInput" class="form-label">Last name</label>
+                                <input type="text" class="form-control" id="telegramInfoLastNameInput" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telegramInfoUsernameInput" class="form-label">@username</label>
+                                <input type="text" class="form-control" id="telegramInfoUsernameInput" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     function loadReports(){

@@ -40,12 +40,16 @@ public class TelegramListener {
             log.info("Updates size : [{}]", updates.size());
 
             for (Update update : updates) {
-//if(update.message() == null || update.callbackQuery() == null){
-//continue;
-//}
+                if(update.message() == null || update.callbackQuery() == null){
+                    actionLogService.failedLog(
+                            String.valueOf(ADMIN_TELEGRAM_ID),
+                            TelegramCommand.UNDEFINED,
+                            "Telegram Exception. The request did not come from Telegram"
+                    );
+                    continue;
+                }
                 RequestType request = RequestType.determineRequest(update);
-System.out.println(update);
-System.out.println(update.message());
+
                 Integer userId = request.equals(RequestType.UPDATE) ?
                         update.message().from().id() :
                         update.callbackQuery().from().id();
