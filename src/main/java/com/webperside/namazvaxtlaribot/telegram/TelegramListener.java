@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
+import com.webperside.namazvaxtlaribot.task.ScheduledTasks;
 import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
 import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
 import com.webperside.namazvaxtlaribot.telegram.exceptions.CommandNotFoundException;
@@ -65,9 +66,18 @@ public class TelegramListener {
                 return UpdatesListener.CONFIRMED_UPDATES_ALL;
             } catch (Exception iDontKnow){
                 iDontKnow.printStackTrace();
+                sleep();
                 return UpdatesListener.CONFIRMED_UPDATES_NONE;
             }
         });
+    }
+
+    private void sleep(){
+        try {
+            Thread.sleep(ScheduledTasks.MINUTE);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean checkForwardIsOk(Update update){
