@@ -79,7 +79,11 @@
             <td th:text="${action.id}"></td>
             <td th:text="${action.userTelegramId}"></td>
             <td th:text="${action.command}"></td>
-            <td th:text="${#temporals.format(action.createdAt,'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <span th:text="${#temporals.format(action.createdAt,'dd-MM-yyyy HH:mm')}"></span>
+                <span th:if="${#temporals.day(action.createdAt) == #dates.day(#dates.createToday())} "
+                      class="badge rounded-pill bg-primary">New</span>
+            </td>
             <td th:text="${action.message}"></td>
             <td>
                 <span th:if="${action.status == 1}" class="badge rounded-pill bg-success">Success</span>
