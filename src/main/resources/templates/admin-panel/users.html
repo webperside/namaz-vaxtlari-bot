@@ -58,7 +58,8 @@
         </div>
     </div>
     <table class="table">
-        <caption th:text="'Count of users : ' + ${users.getContent().size()}"></caption>
+        <caption th:text="'Total Elements/Pages : ' + ${users.getTotalElements()} + '/' + ${users.getTotalPages()} + ', ' +
+                          'Count on this page : '+ ${users.getContent().size()}"></caption>
         <thead>
         <tr>
             <th scope="col">#</th>

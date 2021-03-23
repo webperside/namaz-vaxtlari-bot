@@ -43,6 +43,10 @@ public class ActionLogServiceImpl implements ActionLogService {
     public void log(String userTgId, TelegramCommand command, ActionLogStatus actionLogStatus, String message) {
         Integer userId = userService.getUserIdByUserTgId(userTgId);
 
+        if(userId == null){
+            userService.save(String.valueOf(userId));
+        }
+
         if(message == null) message = "";
 
         String msg = message.length() > 255 ?

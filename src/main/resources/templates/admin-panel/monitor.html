@@ -61,7 +61,8 @@
 
 
     <table class="table">
-        <caption th:text="'Count of logs : ' + ${actions.getContent().size()}"></caption>
+        <caption th:text="'Total Elements/Pages : ' + ${actions.getTotalElements()} + '/' + ${actions.getTotalPages()} + ', ' +
+                          'Count on this page : '+ ${actions.getContent().size()}"></caption>
         <thead>
         <tr>
             <th scope="col">#</th>

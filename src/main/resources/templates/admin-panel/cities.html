@@ -19,7 +19,8 @@
     <div th:if="${sourceSelected == true}">
         <h1 class="display-5" th:text="${cities.getContent().get(0).source.name}"></h1>
         <table class="table">
-            <caption th:text="'Count of cities : ' + ${cities.getContent().size()}"></caption>
+            <caption th:text="'Total Elements/Pages : ' + ${cities.getTotalElements()} + '/' + ${cities.getTotalPages()} + ', ' +
+                              'Count on this page : '+ ${cities.getContent().size()}"></caption>
             <thead>
             <tr>
                 <th scope="col">#</th>

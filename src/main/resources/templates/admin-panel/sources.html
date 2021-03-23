@@ -17,7 +17,8 @@
 <div class="container">
     <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
     <table class="table">
-        <caption th:text="'Count of sources : ' + ${sources.getContent().size()}"></caption>
+        <caption th:text="'Total Elements/Pages : ' + ${sources.getTotalElements()} + '/' + ${sources.getTotalPages()} + ', ' +
+                          'Count on this page : '+ ${sources.getContent().size()}"></caption>
         <thead>
         <tr>
             <th scope="col">#</th>

@@ -2,6 +2,7 @@ package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.GetUpdates;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
@@ -87,7 +88,7 @@ public class TelegramListener {
                     update.toString()
             );
             actionLogService.failedLog(
-                    String.valueOf(ADMIN_TELEGRAM_ID),
+                    String.valueOf(update.myChatMember().from().id()),
                     TelegramCommand.UNDEFINED,
                     "The request did not come from Telegram"
             );
