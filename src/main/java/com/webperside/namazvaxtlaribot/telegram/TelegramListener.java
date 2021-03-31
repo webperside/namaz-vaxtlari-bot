@@ -1,6 +1,8 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.ChatMember;
+import com.pengrad.telegrambot.model.ChatMemberUpdated;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
@@ -38,39 +40,65 @@ public class TelegramListener {
             "STACK_TRACE -\n%s";
 
     public void listen() {
-        helper.bot().setUpdatesListener(updates -> {
+//        helper.bot().setUpdatesListener(updates -> {
+//
+//            log.info("Updates size : [{}]", updates.size());
+//
+//            try{
+//                for (Update update : updates) {
+//                    if(!checkForwardIsOk(update)) continue;
+//
+//                    RequestType request = RequestType.determineRequest(update);
+//
+//                    Long chatId = request.equals(RequestType.UPDATE) ?
+//                            update.message().chat().id() :
+//                            update.callbackQuery().message().chat().id();
+//
+//                    log.info("Working on Update ID : [{}], Chat/User ID : [{}], RequestType : [{}]", update.updateId(), chatId, request.name());
+//
+//                    try {
+//                        handler.processRequest(update); // processing
+//                    } catch (CommandNotFoundException e){ // UI exception
+//                        return catchCommandNotFoundException(update, chatId, e); // return updateId
+//                    } catch (EntityNotFoundException e){ // UI exception
+//                        return catchEntityNotFoundException(update, chatId, e); // return updateId
+//                    } catch (Exception e) { // technical exception
+//                        return catchException(update, chatId, e); // return updateId
+//                    }
+//                }
+//                return UpdatesListener.CONFIRMED_UPDATES_ALL;
+//            } catch (Exception iDontKnow){
+//                iDontKnow.printStackTrace();
+//                sleep();
+//                return UpdatesListener.CONFIRMED_UPDATES_NONE;
+//            }
+//        });
+    }
 
-            log.info("Updates size : [{}]", updates.size());
+    public void filterRequest(Update update){
+        try{
+            if(!checkForwardIsOk(update)) return;
 
-            try{
-                for (Update update : updates) {
-                    if(!checkForwardIsOk(update)) continue;
+            RequestType request = RequestType.determineRequest(update);
 
-                    RequestType request = RequestType.determineRequest(update);
+            Long chatId = request.equals(RequestType.UPDATE) ?
+                    update.message().chat().id() :
+                    update.callbackQuery().message().chat().id();
 
-                    Long chatId = request.equals(RequestType.UPDATE) ?
-                            update.message().chat().id() :
-                            update.callbackQuery().message().chat().id();
+            log.info("Working on Update ID : [{}], Chat/User ID : [{}], RequestType : [{}]", update.updateId(), chatId, request.name());
 
-                    log.info("Working on Update ID : [{}], Chat/User ID : [{}], RequestType : [{}]", update.updateId(), chatId, request.name());
-
-                    try {
-                        handler.processRequest(update); // processing
-                    } catch (CommandNotFoundException e){ // UI exception
-                        return catchCommandNotFoundException(update, chatId, e); // return updateId
-                    } catch (EntityNotFoundException e){ // UI exception
-                        return catchEntityNotFoundException(update, chatId, e); // return updateId
-                    } catch (Exception e) { // technical exception
-                        return catchException(update, chatId, e); // return updateId
-                    }
-                }
-                return UpdatesListener.CONFIRMED_UPDATES_ALL;
-            } catch (Exception iDontKnow){
-                iDontKnow.printStackTrace();
-                sleep();
-                return UpdatesListener.CONFIRMED_UPDATES_NONE;
+            try {
+                handler.processRequest(update); // processing
+            } catch (CommandNotFoundException e){ // UI exception
+                catchCommandNotFoundException(update, chatId, e); // return updateId
+            } catch (EntityNotFoundException e){ // UI exception
+                catchEntityNotFoundException(update, chatId, e); // return updateId
+            } catch (Exception e) { // technical exception
+                catchException(update, chatId, e); // return updateId
             }
-        });
+        }catch(Exception iDontKnow){
+            iDontKnow.printStackTrace();
+        }
     }
 
     private void sleep(){
@@ -87,11 +115,19 @@ public class TelegramListener {
                     ADMIN_TELEGRAM_ID,
                     update.toString()
             );
+
+            ChatMemberUpdated cmu = update.myChatMember();
+            String id;
+
+            if(cmu != null && cmu.from() != null) id = cmu.from().id() + "";
+            else id = ADMIN_TELEGRAM_ID + "";
+
             actionLogService.failedLog(
-                    String.valueOf(update.myChatMember().from().id()),
+                    id,
                     TelegramCommand.UNDEFINED,
                     "The request did not come from Telegram"
             );
+
             return false;
         }
         return true;

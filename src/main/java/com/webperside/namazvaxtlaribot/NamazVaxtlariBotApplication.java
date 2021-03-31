@@ -3,6 +3,7 @@ package com.webperside.namazvaxtlaribot;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlSelect;
+import com.pengrad.telegrambot.request.SetWebhook;
 import com.webperside.namazvaxtlaribot.config.Constants;
 import com.webperside.namazvaxtlaribot.enums.ActionLogStatus;
 import com.webperside.namazvaxtlaribot.models.City;
@@ -49,7 +50,8 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 //    private final MessageCreatorService messageCreatorService;
 //    private final ActionLogService actionLogService;
 
-    private final TelegramListener listener;
+//    private final TelegramListener listener;
+    private final TelegramHelper helper;
 
     public static void main(String[] args) {
         SpringApplication.run(NamazVaxtlariBotApplication.class, args);
@@ -57,7 +59,8 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        listener.listen();
+        final String url = "https://namaz-vaxtlari-bot.herokuapp.com/webhook";
+        helper.executor().execute(new SetWebhook().url(url));
     }
 
 //    public void saveDefaultSettlement(){
