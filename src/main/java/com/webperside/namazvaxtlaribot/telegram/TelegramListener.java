@@ -97,6 +97,7 @@ public class TelegramListener {
                 catchException(update, chatId, e); // return updateId
             }
         }catch(Exception iDontKnow){
+            alert(ADMIN_TELEGRAM_ID, iDontKnow);
             iDontKnow.printStackTrace();
         }
     }
