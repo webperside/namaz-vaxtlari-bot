@@ -18,9 +18,6 @@ public class WebhookController {
 
     @PostMapping
     public void webhookRequest(@RequestBody String update){
-        System.out.println(update);
-        Update up = BotUtils.parseUpdate(update);
-        System.out.println(up);
-        listener.filterRequest(up);
+        listener.filterRequest(BotUtils.parseUpdate(update));
     }
 }

@@ -1,10 +1,6 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
-import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.ChatMember;
-import com.pengrad.telegrambot.model.ChatMemberUpdated;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.GetUpdates;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
@@ -18,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
-
 import java.util.Arrays;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.*;
@@ -94,7 +89,7 @@ public class TelegramListener {
             } catch (EntityNotFoundException e){ // UI exception
                 catchEntityNotFoundException(update, chatId, e); // return updateId
             } catch (Exception e) { // technical exception
-                catchException(update, chatId, e); // return updateId
+                catchException(chatId, e); // return updateId
             }
         }catch(Exception iDontKnow){
             alert(ADMIN_TELEGRAM_ID, iDontKnow);
@@ -117,14 +112,11 @@ public class TelegramListener {
                     update.toString()
             );
 
-            ChatMemberUpdated cmu = update.myChatMember();
-            String id;
-
-            if(cmu != null && cmu.from() != null) id = cmu.from().id() + "";
-            else id = ADMIN_TELEGRAM_ID + "";
+//            if(cmu != null && cmu.from() != null) id = cmu.from().id() + "";
+//            else id = ADMIN_TELEGRAM_ID + "";
 
             actionLogService.failedLog(
-                    id,
+                    ADMIN_TELEGRAM_ID + "",
                     TelegramCommand.UNDEFINED,
                     "The request did not come from Telegram"
             );
@@ -134,17 +126,16 @@ public class TelegramListener {
         return true;
     }
 
-    private Integer catchCommandNotFoundException(Update update, Long chatId, CommandNotFoundException e){
+    private void catchCommandNotFoundException(Update update, Long chatId, CommandNotFoundException e){
         printLogException(chatId, e);
         alert(chatId, e);
 
         String customMessage = messageCreatorService.commandNotFoundCreator(update.message().text());
         helper.executor().sendText(chatId, customMessage);
         actionLogService.failedLog(String.valueOf(chatId), TelegramCommand.UNDEFINED, e.getMessage());
-        return update.updateId();
     }
 
-    private Integer catchEntityNotFoundException(Update update, Long chatId, EntityNotFoundException e){
+    private void catchEntityNotFoundException(Update update, Long chatId, EntityNotFoundException e){
         printLogException(chatId, e);
         alert(chatId, e);
 
@@ -160,12 +151,9 @@ public class TelegramListener {
         }
 
         actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
-
-        return update.updateId();
-
     }
 
-    private Integer catchException(Update update, Long chatId, Exception e){
+    private void catchException(Long chatId, Exception e){
         e.printStackTrace();
 
         printLogException(chatId, e);
@@ -174,7 +162,6 @@ public class TelegramListener {
         alert(chatId, e);
 
         actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, e.getMessage());
-        return update.updateId();
     }
 
     private void alert(Long chatId, Exception e){
