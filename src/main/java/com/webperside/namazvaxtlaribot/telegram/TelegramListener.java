@@ -1,9 +1,11 @@
 package com.webperside.namazvaxtlaribot.telegram;
 
+import com.pengrad.telegrambot.model.ChatMemberUpdated;
 import com.pengrad.telegrambot.model.Update;
 import com.webperside.namazvaxtlaribot.dto.MessageDto;
 import com.webperside.namazvaxtlaribot.service.ActionLogService;
 import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
+import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.task.ScheduledTasks;
 import com.webperside.namazvaxtlaribot.telegram.enums.RequestType;
 import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
@@ -27,6 +29,7 @@ public class TelegramListener {
     private final TelegramHandler handler;
     private final MessageCreatorService messageCreatorService;
     private final ActionLogService actionLogService;
+    private final UserService userService;
 
     private static final String ERROR_MESSAGE_TEMPLATE =
             "CHAT/USER ID - %s\n" +
@@ -107,16 +110,24 @@ public class TelegramListener {
 
     private boolean checkForwardIsOk(Update update){
         if(update.message() == null && update.callbackQuery() == null){
+            ChatMemberUpdated cmu = update.myChatMember();
+            String id;
+
+            if(cmu != null && cmu.from() != null){
+                id = cmu.from().id() + "";
+                userService.save(id);
+            }
+            else id = ADMIN_TELEGRAM_ID + "";
+
+
             helper.executor().sendText(
                     ADMIN_TELEGRAM_ID,
                     update.toString()
             );
 
-//            if(cmu != null && cmu.from() != null) id = cmu.from().id() + "";
-//            else id = ADMIN_TELEGRAM_ID + "";
 
             actionLogService.failedLog(
-                    ADMIN_TELEGRAM_ID + "",
+                    id,
                     TelegramCommand.UNDEFINED,
                     "The request did not come from Telegram"
             );

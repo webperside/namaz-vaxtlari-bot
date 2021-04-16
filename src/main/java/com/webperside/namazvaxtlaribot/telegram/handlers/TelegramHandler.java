@@ -86,6 +86,8 @@ public class TelegramHandler {
             Map<String, String> values = params.getValues();
 
             handle(main).run(update, query, values);
+        } else if(update.message() == null && update.callbackQuery() == null){
+            handle("/start").run(update, null, "");
         } else {
             String text = update.message().text();
 
@@ -114,7 +116,13 @@ public class TelegramHandler {
         @Override
         public void process(ProcessParams processParams) {
             Update update = processParams.getUpdate();
-            Long chatId = update.message().chat().id();
+            Long chatId;
+
+            if(update.message() != null){
+                chatId = update.message().chat().id();
+            } else {
+                chatId = update.myChatMember().chat().id();
+            }
 
             String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
 
