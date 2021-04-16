@@ -148,17 +148,19 @@ public class TelegramListener {
         alert(chatId, e);
 
         String customMessage = messageCreatorService.exceptionMessageCreator(NOT_SPECIAL);
+        String errorMessage = NOT_SPECIAL;
         if(e.getMessage() != null && e.getMessage().equals(PRAY_TIME_SETTLEMENT_NOT_FOUND)){
             customMessage = messageCreatorService.exceptionMessageCreator(PRAY_TIME_SETTLEMENT_NOT_FOUND);
             helper.executor().sendText(chatId, customMessage);
 
             MessageDto registerNotCompleted = messageCreatorService.selectSourceCreator(0);
             helper.executor().sendText(chatId, registerNotCompleted);
+            errorMessage = PRAY_TIME_SETTLEMENT_NOT_FOUND;
         } else{
             helper.executor().sendText(chatId, customMessage);
         }
 
-        actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, customMessage);
+        actionLogService.failedLog(String.valueOf(chatId),TelegramCommand.UNDEFINED, errorMessage);
     }
 
     private void catchException(Long chatId, Exception e){
