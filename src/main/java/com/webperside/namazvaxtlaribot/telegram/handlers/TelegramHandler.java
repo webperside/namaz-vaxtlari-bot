@@ -120,17 +120,15 @@ public class TelegramHandler {
 
             if(update.message() != null){
                 chatId = update.message().chat().id();
+                String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
+                if(alreadyExist != null){
+
+                    executor.sendText(chatId, alreadyExist);
+                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "already exist");
+                    return ;
+                }
             } else {
                 chatId = update.myChatMember().chat().id();
-            }
-
-            String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
-
-            if(alreadyExist != null){
-
-                executor.sendText(chatId, alreadyExist);
-                actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "already exist");
-                return ;
             }
 
             String from = executor.getUserInfo(update.message().from());
