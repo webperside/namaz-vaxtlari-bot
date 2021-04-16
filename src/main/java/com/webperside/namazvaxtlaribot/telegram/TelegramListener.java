@@ -114,17 +114,14 @@ public class TelegramListener {
             String id;
 
             if(cmu != null && cmu.from() != null){
-                id = cmu.from().id() + "";
-                if(!userService.existsByTgId(id)) userService.save(id);
+                return true;
             }
             else id = ADMIN_TELEGRAM_ID + "";
 
-
-            helper.executor().sendText(
-                    ADMIN_TELEGRAM_ID,
-                    update.toString()
-            );
-
+//            helper.executor().sendText(
+//                    ADMIN_TELEGRAM_ID,
+//                    update.toString()
+//            );
 
             actionLogService.failedLog(
                     id,

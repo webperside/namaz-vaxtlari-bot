@@ -88,7 +88,7 @@ public class TelegramHandler {
             handle(main).run(update, query, values);
         } else if(update.message() == null && update.callbackQuery() == null){
             handle("/start").run(update, null, "");
-        } else {
+        } else if(update.message() != null ){
             String text = update.message().text();
 
             if(text == null){
@@ -118,17 +118,18 @@ public class TelegramHandler {
             Update update = processParams.getUpdate();
             Long chatId;
 
-            if(update.message() != null){
+            if(update.message() != null){ // when user type /start
                 chatId = update.message().chat().id();
-                String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
-                if(alreadyExist != null){
-
-                    executor.sendText(chatId, alreadyExist);
-                    actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "already exist");
-                    return ;
-                }
-            } else {
+            } else { // when user click /start or /restart
                 chatId = update.myChatMember().chat().id();
+            }
+
+            String alreadyExist = messageCreatorService.userAlreadyExistCreator(chatId);
+            if(alreadyExist != null){
+
+                executor.sendText(chatId, alreadyExist);
+                actionLogService.successLog(String.valueOf(chatId),TelegramCommand.START, "already exist");
+                return ;
             }
 
             String from = executor.getUserInfo(update.message().from());
