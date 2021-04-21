@@ -79,14 +79,14 @@ public class TelegramListener {
 
             RequestType request = RequestType.determineRequest(update);
 
+            Long chatId;
             if(request == null){
-                helper.executor().sendText(ADMIN_TELEGRAM_ID, update.toString());
-                return;
+                chatId = update.myChatMember().chat().id();
+            } else {
+                chatId = request.equals(RequestType.UPDATE) ?
+                        update.message().chat().id() :
+                        update.callbackQuery().message().chat().id();
             }
-
-            Long chatId = request.equals(RequestType.UPDATE) ?
-                    update.message().chat().id() :
-                    update.callbackQuery().message().chat().id();
 
             log.info("Working on Update ID : [{}], Chat/User ID : [{}], RequestType : [{}]", update.updateId(), chatId, request.name());
 
