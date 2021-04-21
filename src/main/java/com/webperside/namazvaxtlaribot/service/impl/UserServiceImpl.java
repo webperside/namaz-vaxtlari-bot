@@ -13,12 +13,13 @@ import com.webperside.namazvaxtlaribot.service.UserService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
 import com.webperside.namazvaxtlaribot.util.SortParams;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -105,17 +106,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendCustomMessage(SendMessageDto dto) {
-        if(dto.getUserTgId() == null || dto.getUserTgId().isEmpty()){
+        if (dto.getUserTgId() == null || dto.getUserTgId().isEmpty()) {
             sendAsync(dto);
-        } else{
-            executor.sendText(Long.parseLong(dto.getUserTgId()),dto.getMessage());
+        } else {
+            executor.sendText(Long.parseLong(dto.getUserTgId()), dto.getMessage());
         }
 
     }
 
-    private void sendAsync(SendMessageDto dto){
+    private void sendAsync(SendMessageDto dto) {
         final String type = dto.getBulkMessageType();
-        List<User> users;
+        List<User> users = new ArrayList<>();
+
+        User user = userRepository.findByUserTgId(String.valueOf(Constants.ADMIN_TELEGRAM_ID))
+                .orElse(null);
 
         switch (type) {
             case Constants.BULK_MESSAGE_ALL:
@@ -124,14 +128,12 @@ public class UserServiceImpl implements UserService {
             case Constants.BULK_MESSAGE_W_SET:
                 users = userRepository.findAllBySettlementIsNull();
                 break;
-            case Constants.BULK_MESSAGE_TEST_ADMIN:
-                users = Collections.singletonList(
-                        userRepository.findByUserTgId(String.valueOf(Constants.ADMIN_TELEGRAM_ID)
-                        ).orElse(null));
+            case Constants.BULK_MESSAGE_TEST_ADMIN : default :
+                System.out.println("default case");
                 break;
-            default:
-                users = new ArrayList<>();
         }
+
+        users.add(user);
 
         BulkMessageRunner runner = new BulkMessageRunner(users, dto.getMessage(), executor);
 
