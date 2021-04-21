@@ -13,5 +13,6 @@ public class SendMessageDto {
 
     private String userTgId;
     private String message;
+    private String bulkMessageType;
 
 }

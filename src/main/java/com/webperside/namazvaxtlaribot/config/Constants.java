@@ -65,6 +65,14 @@ public class Constants {
     public static Map<Integer, PrayTimeDto> prayTimes = new HashMap<>();
     public static Map<Integer, PrayTimeDto> ahlibeytAzTimes = new HashMap<>();
 
+    // Bulk Message Types
+    public static final String BULK_MESSAGE_ALL = "all";
+    public static final String BULK_MESSAGE_W_SET = "wSet";
+    public static final String BULK_MESSAGE_TEST_ADMIN = "testAdmin";
+    public static final String BULK_MESSAGE_SUCCESS = "Bulk message successfully sent ✅";
+    public static final String BULK_MESSAGE_FAIL = "Bulk message failed ⚠\nException : %s\nMessage : %s";
+
+
     // Exception filtering
     public static final String NOT_SPECIAL = "NOT_SPECIAL";
     public static final String PRAY_TIME_SETTLEMENT_NOT_FOUND = "PRAY_TIME_SETTLEMENT_NOT_FOUND";

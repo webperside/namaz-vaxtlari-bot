@@ -38,6 +38,7 @@ public class UserController {
 
     @PostMapping("/send-message")
     public String sendMessage(@ModelAttribute(value = "sendMessage") SendMessageDto messageDto){
+//        System.out.println(messageDto);
         userService.sendCustomMessage(messageDto);
         return "redirect:/admin/users";
     }

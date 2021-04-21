@@ -17,6 +17,13 @@
 <div class="container">
     <div th:replace="admin-panel/fragments/navbar :: navbar"></div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <div>
+            <button type="button" class="btn btn-outline-primary"
+                    onclick="showSendMessageModal('bulk')">
+                <i class="fas fa-comment"></i>
+                Send Bulk Messages
+            </button>
+        </div>
         <div class="dropdown">
             <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                data-bs-toggle="dropdown" aria-expanded="false"
@@ -153,9 +160,34 @@
                     <form id="sendMessageForm" th:action="@{/admin/users/send-message}" th:object="${sendMessage}"
                           method="post">
                         <div class="mb-3">
-                            <label for="sendMessageUserTelegramIdInput" class="form-label">User Telegram ID</label>
-                            <input type="text" class="form-control" id="sendMessageUserTelegramIdInput" readonly
-                                   th:field="*{userTgId}">
+                            <div id="specialUser">
+                                <label for="sendMessageUserTelegramIdInput" class="form-label">User Telegram ID</label>
+                                <input type="text" class="form-control" id="sendMessageUserTelegramIdInput" readonly
+                                       th:field="*{userTgId}">
+                            </div>
+                            <div id="bulkMessageType" style="display: none">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="bulkMessageType"
+                                           id="flexRadioDefault1" value="all" checked th:field="*{bulkMessageType}">
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        All
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="bulkMessageType"
+                                           id="flexRadioDefault2" value="wSet" th:field="*{bulkMessageType}">
+                                    <label class="form-check-label" for="flexRadioDefault2">
+                                        Settlement not selected
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="bulkMessageType"
+                                           id="flexRadioDefault3" value="testAdmin" th:field="*{bulkMessageType}">
+                                    <label class="form-check-label" for="flexRadioDefault3">
+                                        Test
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="sendMessageCustomMessageInput" class="form-label">Message</label>
@@ -219,8 +251,15 @@
     }
 
     function showSendMessageModal(userId) {
-        document.getElementById("sendMessageUserTelegramIdInput").value =
-            document.getElementById("sendMessageButtonId" + userId).getAttribute("data-user_telegram_id");
+        if (userId === 'bulk') {
+            document.getElementById("specialUser").style.display="none";
+            document.getElementById("bulkMessageType").style.display="block";
+        } else {
+            document.getElementById("specialUser").style.display="block";
+            document.getElementById("bulkMessageType").style.display="none";
+            document.getElementById("sendMessageUserTelegramIdInput").value =
+                document.getElementById("sendMessageButtonId" + userId).getAttribute("data-user_telegram_id");
+        }
         showModal("sendMessageModal")
     }
 

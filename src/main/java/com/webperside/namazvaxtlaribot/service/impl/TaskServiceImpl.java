@@ -24,7 +24,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void sendPrayTimes(User user) {
-
     }
 
     @Override
@@ -34,14 +33,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void getPrayTimesFromAhlibeytAz() {
-        executor.sendText(ADMIN_TELEGRAM_ID, "job : getPrayTimesFromAhlibeytAz");
+//        executor.sendText(ADMIN_TELEGRAM_ID, "job : getPrayTimesFromAhlibeytAz");
         Source source = sourceService.findByName(DS_AHLIBEYT_AZ);
         webscrapService.prepareDataForAhlibeytAz(source);
     }
 
     @Override
     public void clearPrayTimeData() {
-        executor.sendText(ADMIN_TELEGRAM_ID, "job : clearPrayTimeData");
+//        executor.sendText(ADMIN_TELEGRAM_ID, "job : clearPrayTimeData");
         Constants.prayTimes = new HashMap<>();
     }
 }
