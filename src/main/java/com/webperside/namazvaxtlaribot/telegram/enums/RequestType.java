@@ -9,6 +9,6 @@ public enum RequestType{
     public static RequestType determineRequest(Update update){
         if(update.message() != null) return UPDATE;
         else if(update.message() == null && update.callbackQuery() != null) return CALLBACK;
-        return UPDATE;
+        return null;
     }
 }

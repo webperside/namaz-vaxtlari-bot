@@ -79,6 +79,11 @@ public class TelegramListener {
 
             RequestType request = RequestType.determineRequest(update);
 
+            if(request == null){
+                helper.executor().sendText(ADMIN_TELEGRAM_ID, update.toString());
+                return;
+            }
+
             Long chatId = request.equals(RequestType.UPDATE) ?
                     update.message().chat().id() :
                     update.callbackQuery().message().chat().id();
