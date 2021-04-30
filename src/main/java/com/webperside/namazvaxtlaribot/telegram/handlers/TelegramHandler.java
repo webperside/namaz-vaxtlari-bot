@@ -55,7 +55,7 @@ public class TelegramHandler {
             if(className.length() > prefix.length()){
                 String classPrefix = className.substring(0, prefix.length());
                 String classSuffix = className.substring(prefix.length());
-                if(classPrefix.equals(prefix) &&
+                if(classPrefix.equalsIgnoreCase(prefix) &&
                         (classSuffix.equals(CONSTANT_SUFFIX_CB_HANDLER) || classSuffix.equals(CONSTANT_SUFFIX_HANDLER))){
                     HandlerInterface foundedHandler = initializeHandler(c);
                     endpoints.put(prefix, foundedHandler);
