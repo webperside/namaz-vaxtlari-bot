@@ -95,7 +95,7 @@
                 <button type="button" class="btn btn-outline-success btn-sm"
                         th:id="${'getTelegramInfoButtonId' + action.userId}"
                         th:attr="data-user_telegram_id=${action.userTelegramId}"
-                        th:onclick="'javascript:showTelegramInfoModal('+ ${action.userId} +')'"">
+                        th:onclick="'javascript:showTelegramInfoModal('+ ${action.userId} +')'">
                     <i class="fab fa-telegram"></i>
                 </button>
             </td>
