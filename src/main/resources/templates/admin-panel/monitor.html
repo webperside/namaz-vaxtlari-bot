@@ -72,6 +72,7 @@
             <th scope="col">Created at</th>
             <th scope="col">Message</th>
             <th scope="col">Status</th>
+            <th scope="col">Operation</th>
         </tr>
         </thead>
         <tbody>
@@ -89,6 +90,14 @@
             <td>
                 <span th:if="${action.status == 1}" class="badge rounded-pill bg-success">Success</span>
                 <span th:unless="${action.status == 1}" class="badge rounded-pill bg-danger">Failed</span>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-success btn-sm"
+                        th:id="${'getTelegramInfoButtonId' + action.userId}"
+                        th:attr="data-user_telegram_id=${action.userTelegramId}"
+                        th:onclick="'javascript:showTelegramInfoModal('+ ${action.userId} +')'"">
+                    <i class="fab fa-telegram"></i>
+                </button>
             </td>
         </tr>
         </tbody>
@@ -199,6 +208,36 @@
         request.responseType = "json";
         request.open('Get', '/admin/api/monitor/');
         request.send();
+    }
+
+    function showTelegramInfoModal(userId) {
+        const userTgId = document
+            .getElementById("getTelegramInfoButtonId" + userId)
+            .getAttribute("data-user_telegram_id");
+
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    const response = request.response;
+                    document.getElementById("telegramInfoFirstNameInput").value = response.firstName;
+                    document.getElementById("telegramInfoLastNameInput").value = response.lastName;
+                    document.getElementById("telegramInfoUsernameInput").value = response.username;
+                    document.getElementById("telegramInfoPhotoUrlImg").src = response.photoUrl;
+                    showModal("telegramInfoModal")
+                } else {
+                    console.log("error")
+                }
+            }
+        }
+        request.responseType = "json";
+        request.open('Get', '/admin/api/users/' + userTgId);
+        request.send();
+    }
+
+    function showModal(id) {
+        const myModal = new bootstrap.Modal(document.getElementById(id));
+        myModal.show()
     }
 </script>
 </body>

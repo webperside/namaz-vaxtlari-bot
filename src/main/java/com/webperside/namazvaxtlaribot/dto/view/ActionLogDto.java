@@ -15,6 +15,7 @@ public class ActionLogDto {
 
     private Integer id;
     private String userTelegramId;
+    private Integer userId;
     private String command;
     private byte status;
     private String message;

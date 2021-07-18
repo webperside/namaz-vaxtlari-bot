@@ -75,6 +75,7 @@ public class ActionLogServiceImpl implements ActionLogService {
             actions.add(ActionLogDto.builder()
                     .id(actionLog.getId())
                     .userTelegramId(actionLog.getUser().getUserTgId())
+                    .userId(actionLog.getUser().getId())
                     .command(actionLog.getCommand().getCommand())
                     .createdAt(actionLog.getCreatedAt())
                     .status(actionLog.getStatus().getValue())
