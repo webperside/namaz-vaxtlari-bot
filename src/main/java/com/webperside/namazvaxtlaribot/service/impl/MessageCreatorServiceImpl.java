@@ -355,6 +355,8 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         String sourceName = settlement.getCity().getSource().getName();
         String msg = null;
 
+        System.out.println(dto);
+
         if (sourceName.equals(DS_NAMAZZAMANI_NET)) {
             msg = messageSource.getMessage("telegram.pray_time.namazzamani_net",
                     paramsForNamazZamaniNet(settlement, dto),

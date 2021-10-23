@@ -15,7 +15,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
 //    private final CityRepository cityRepository;
 //    private final SettlementRepository settlementRepository;
-    private final WebScrapService webScrapService;
+//    private final WebScrapService webScrapService;
 //    private final SourceRepository sourceRepository;
 //    private final SettlementService settlementService;
 //    private final MessageCreatorService messageCreatorService;
@@ -30,7 +30,6 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println(webScrapService.prepareDataForMetbuatAz("https://metbuat.az/namaz/1/Bak%C4%B1.html"));
 //        final String url = "https://namaz-vaxtlari-bot.herokuapp.com/webhook";
 //        helper.executor().execute(new SetWebhook().url(url));
     }
