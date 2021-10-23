@@ -2,7 +2,7 @@
      xmlns:th="http://www.thymeleaf.org"
      th:fragment="navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" th:href="@{/admin/users}">
             <img th:src="@{/images/logo.jpg}" alt="" width="64" height="64" class="d-inline-block rounded-circle">
             Namaz Vaxtları Bot
         </a>
