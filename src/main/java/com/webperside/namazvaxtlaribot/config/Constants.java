@@ -28,6 +28,9 @@ public class Constants {
     // ...::: source - ahlibeyt.az :::...
     public static final String DS_AHLIBEYT_AZ = "ahlibeyt.az";
 
+    // ...::: source - metbuat.az :::...
+    public static final String DS_METBUAT_AZ = "metbuat.az";
+
     // buttons
     public static final String PARAM_SEPARATOR = "&";
     public static final String BUTTON_T_BASHLA = "Başla";

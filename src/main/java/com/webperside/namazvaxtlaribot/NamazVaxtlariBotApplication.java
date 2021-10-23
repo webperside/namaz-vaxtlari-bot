@@ -1,41 +1,12 @@
 package com.webperside.namazvaxtlaribot;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlSelect;
-import com.pengrad.telegrambot.request.SetWebhook;
-import com.webperside.namazvaxtlaribot.config.Constants;
-import com.webperside.namazvaxtlaribot.enums.ActionLogStatus;
-import com.webperside.namazvaxtlaribot.models.City;
-import com.webperside.namazvaxtlaribot.models.Settlement;
-import com.webperside.namazvaxtlaribot.models.Source;
-import com.webperside.namazvaxtlaribot.repository.ActionLogRepository;
-import com.webperside.namazvaxtlaribot.repository.CityRepository;
-import com.webperside.namazvaxtlaribot.repository.SettlementRepository;
-import com.webperside.namazvaxtlaribot.repository.SourceRepository;
-import com.webperside.namazvaxtlaribot.service.ActionLogService;
-import com.webperside.namazvaxtlaribot.service.MessageCreatorService;
-import com.webperside.namazvaxtlaribot.service.SettlementService;
-import com.webperside.namazvaxtlaribot.service.WebscrapService;
+import com.webperside.namazvaxtlaribot.service.WebScrapService;
 import com.webperside.namazvaxtlaribot.telegram.TelegramHelper;
-import com.webperside.namazvaxtlaribot.telegram.TelegramListener;
-import com.webperside.namazvaxtlaribot.telegram.enums.TelegramCommand;
-import com.webperside.namazvaxtlaribot.telegram.handlers.TelegramHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.Month;
-import java.time.format.TextStyle;
-import java.util.*;
-
-import static com.webperside.namazvaxtlaribot.config.Constants.DS_NAMAZZAMANI_NET_SETT_ID;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -44,7 +15,7 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
 //    private final CityRepository cityRepository;
 //    private final SettlementRepository settlementRepository;
-//    private final WebscrapService webscrapService;
+    private final WebScrapService webScrapService;
 //    private final SourceRepository sourceRepository;
 //    private final SettlementService settlementService;
 //    private final MessageCreatorService messageCreatorService;
@@ -59,8 +30,9 @@ public class NamazVaxtlariBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        final String url = "https://namaz-vaxtlari-bot.herokuapp.com/webhook";
-        helper.executor().execute(new SetWebhook().url(url));
+        System.out.println(webScrapService.prepareDataForMetbuatAz("https://metbuat.az/namaz/1/Bak%C4%B1.html"));
+//        final String url = "https://namaz-vaxtlari-bot.herokuapp.com/webhook";
+//        helper.executor().execute(new SetWebhook().url(url));
     }
 
 //    public void saveDefaultSettlement(){

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
-import static com.webperside.namazvaxtlaribot.config.Constants.ADMIN_TELEGRAM_ID;
 import static com.webperside.namazvaxtlaribot.config.Constants.DS_AHLIBEYT_AZ;
 
 @Service
@@ -19,7 +18,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TelegramHelper.Executor executor;
     private final SourceService sourceService;
-    private final WebscrapService webscrapService;
+    private final WebScrapService webscrapService;
 
 
     @Override

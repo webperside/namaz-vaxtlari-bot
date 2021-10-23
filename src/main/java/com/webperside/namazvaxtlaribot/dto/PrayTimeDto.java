@@ -45,7 +45,8 @@ public class PrayTimeDto {
         }
     }
 
-    public void addForAhlibeytAz(Integer index, String value){
+    // implemented for Ahlibeyt.az and Metbuat.az
+    public void addByIndex(Integer index, String value){
         LocalDateTime ldt = prepare(value);
 
         switch (index){

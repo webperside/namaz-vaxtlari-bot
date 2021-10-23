@@ -23,7 +23,6 @@ import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.*;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.*;
@@ -40,7 +39,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private final CityService cityService;
     private final SettlementService settlementService;
     private final MessageSource messageSource;
-    private final WebscrapService webscrapService;
+    private final WebScrapService webscrapService;
     private final TaskService taskService;
 
     @Override
@@ -360,9 +359,9 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
             msg = messageSource.getMessage("telegram.pray_time.namazzamani_net",
                     paramsForNamazZamaniNet(settlement, dto),
                     Locale.getDefault());
-        } else if (sourceName.equals(DS_AHLIBEYT_AZ)) {
-            msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az",
-                    paramsForAhlibeytAz(settlement, dto),
+        } else if (sourceName.equals(DS_AHLIBEYT_AZ) || sourceName.equals(DS_METBUAT_AZ)) {
+            msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az_and_metbuat_az",
+                    paramsForAhlibeytAzAndMetbuatAz(settlement, dto),
                     Locale.getDefault());
         }
 
@@ -453,10 +452,16 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         Source source = settlement.getCity().getSource();
         String sourceName = source.getName();
 
-        if (sourceName.equals(DS_NAMAZZAMANI_NET)) {
-            ptd = ifSourceIsNamazZamaniNet(settlement);
-        } else if (sourceName.equals(DS_AHLIBEYT_AZ)) {
-            ptd = ifSourceIsAhlibeytAz(settlement);
+        switch (sourceName) {
+            case DS_NAMAZZAMANI_NET:
+                ptd = ifSourceIsNamazZamaniNet(settlement);
+                break;
+            case DS_AHLIBEYT_AZ:
+                ptd = ifSourceIsAhlibeytAz(settlement);
+                break;
+            case DS_METBUAT_AZ:
+                ptd = ifSourceIsMetbuatAz(settlement);
+                break;
         }
 
         prayTimes.put(settlement.getId(), ptd);
@@ -497,7 +502,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return ptd.changeByValue(settlement.getValue());
     }
 
-    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto) {
+    private Object[] paramsForAhlibeytAzAndMetbuatAz(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
                 getDate(),
@@ -512,6 +517,12 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 formatter.format(dto.getGeceYarisi()),
                 settlement.getCity().getSource().getName()
         };
+    }
+
+    private PrayTimeDto ifSourceIsMetbuatAz(Settlement settlement) {
+        String params = settlement.getValue();
+        String url = settlement.getCity().getSource().getUrl() + params;
+        return webscrapService.prepareDataForNamazZamaniNet(url);
     }
 
     private String getDate() {

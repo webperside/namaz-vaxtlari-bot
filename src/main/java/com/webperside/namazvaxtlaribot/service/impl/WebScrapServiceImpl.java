@@ -5,27 +5,31 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.webperside.namazvaxtlaribot.dto.PrayTimeDto;
 import com.webperside.namazvaxtlaribot.models.Source;
-import com.webperside.namazvaxtlaribot.service.WebscrapService;
+import com.webperside.namazvaxtlaribot.service.WebScrapService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 
-import static com.webperside.namazvaxtlaribot.config.Constants.DS_AHLIBEYT_AZ;
 import static com.webperside.namazvaxtlaribot.config.Constants.ahlibeytAzTimes;
 
 @Service
-public class WebscrapServiceImpl implements WebscrapService {
+public class WebScrapServiceImpl implements WebScrapService {
+
+    @Override
+    public HtmlPage scrap(String url) throws IOException {
+        try(final WebClient webClient = new WebClient(BrowserVersion.CHROME)){
+            webClient.getOptions().setCssEnabled(false);
+            webClient.getOptions().setJavaScriptEnabled(false);
+
+            return webClient.getPage(url);
+        }
+    }
 
     @Override
     public DomElement scrapById(String url, String id) throws IOException {
-        try(final WebClient webClient = new WebClient(BrowserVersion.CHROME)){
-			webClient.getOptions().setCssEnabled(false);
-
-			final HtmlPage page = webClient.getPage(url);
-
-			return page.getElementById(id);
-		}
+        final HtmlPage page = scrap(url);
+        return page.getElementById(id);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class WebscrapServiceImpl implements WebscrapService {
                 for (int j = 1; j < cells.size(); j++) {
                     HtmlTableCell cell = cells.get(j);
                     String value = cell.asText().replace(";", ":");
-                    ptd.addForAhlibeytAz(j, value);
+                    ptd.addByIndex(j, value);
                 }
 
                 ahlibeytAzTimes.put(i, ptd);
@@ -88,5 +92,30 @@ public class WebscrapServiceImpl implements WebscrapService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public PrayTimeDto prepareDataForMetbuatAz(String url) {
+        try{
+            final String htmlXpath = "//table[@class='table namaz-daily-table']";
+            HtmlPage page = scrap(url);
+            PrayTimeDto prayTime = new PrayTimeDto();
+
+            List<DomElement> element2 = page.getByXPath(htmlXpath);
+
+            HtmlTable table = (HtmlTable) element2.get(0);
+            HtmlTableRow row = table.getRows().get(1);
+            List<HtmlTableCell> cells = row.getCells();
+
+            for(int i = 0 ; i < cells.size() ; i++){
+                prayTime.addByIndex(i + 1, cells.get(i).asText());
+            }
+
+            return prayTime;
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
