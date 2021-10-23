@@ -524,7 +524,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
     private PrayTimeDto ifSourceIsMetbuatAz(Settlement settlement) {
         String params = settlement.getValue();
         String url = settlement.getCity().getSource().getUrl() + params;
-        return webscrapService.prepareDataForNamazZamaniNet(url);
+        return webscrapService.prepareDataForMetbuatAz(url);
     }
 
     private String getDate() {
