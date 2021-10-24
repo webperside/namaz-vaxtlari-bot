@@ -355,16 +355,23 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         String sourceName = settlement.getCity().getSource().getName();
         String msg = null;
 
-        System.out.println(dto);
-
-        if (sourceName.equals(DS_NAMAZZAMANI_NET)) {
-            msg = messageSource.getMessage("telegram.pray_time.namazzamani_net",
-                    paramsForNamazZamaniNet(settlement, dto),
-                    Locale.getDefault());
-        } else if (sourceName.equals(DS_AHLIBEYT_AZ) || sourceName.equals(DS_METBUAT_AZ)) {
-            msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az_and_metbuat_az",
-                    paramsForAhlibeytAzAndMetbuatAz(settlement, dto),
-                    Locale.getDefault());
+        switch (sourceName) {
+            case DS_NAMAZZAMANI_NET:
+                msg = messageSource.getMessage("telegram.pray_time.namazzamani_net",
+                        paramsForNamazZamaniNet(settlement, dto),
+                        Locale.getDefault());
+                break;
+            case DS_AHLIBEYT_AZ: // TEMP
+                msg = "Hal-hazırda ahlibeyt.az saytında təmir işləri aparıldığına görə botun işləməsində problem yaranır. Zəhmət olmasa /tenzimle" +
+                        " komandasından istifadə edərək, mənbəni metbuat.az saytına keçirməyiniz xahiş olunur." +
+                        "\nMüvəqqəti narahatlığa görə üzr istəyirik." +
+                        "\nİstifadənizə görə təşəkkürlər";
+                break;
+            case DS_METBUAT_AZ:
+                msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az_and_metbuat_az",
+                        paramsForAhlibeytAzAndMetbuatAz(settlement, dto),
+                        Locale.getDefault());
+                break;
         }
 
         return MessageDto.builder().message(msg).build();
@@ -458,9 +465,9 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
             case DS_NAMAZZAMANI_NET:
                 ptd = ifSourceIsNamazZamaniNet(settlement);
                 break;
-            case DS_AHLIBEYT_AZ:
-                ptd = ifSourceIsAhlibeytAz(settlement);
-                break;
+//            case DS_AHLIBEYT_AZ:
+//                ptd = ifSourceIsAhlibeytAz(settlement);
+//                break;
             case DS_METBUAT_AZ:
                 ptd = ifSourceIsMetbuatAz(settlement);
                 break;
