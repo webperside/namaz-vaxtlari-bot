@@ -23,7 +23,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/admin/**").authenticated()
                 .anyRequest().permitAll().and()
-                .formLogin();
+                .formLogin().successForwardUrl("/admin/users");
     }
 
     @Override
