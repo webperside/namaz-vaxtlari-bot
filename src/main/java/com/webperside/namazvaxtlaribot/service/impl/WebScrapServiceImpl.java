@@ -9,6 +9,8 @@ import com.webperside.namazvaxtlaribot.service.WebScrapService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.webperside.namazvaxtlaribot.config.Constants.ahlibeytAzTimes;
@@ -97,6 +99,7 @@ public class WebScrapServiceImpl implements WebScrapService {
     @Override
     public PrayTimeDto prepareDataForMetbuatAz(String url) {
         try{
+            Iterator<Integer> indexList = Arrays.asList(2,3,4,5,7,8,9).iterator();
             final String htmlXpath = "//table[@class='table namaz-daily-table']";
             HtmlPage page = scrap(url);
             PrayTimeDto prayTime = new PrayTimeDto();
@@ -107,8 +110,8 @@ public class WebScrapServiceImpl implements WebScrapService {
             HtmlTableRow row = table.getRows().get(1);
             List<HtmlTableCell> cells = row.getCells();
 
-            for(int i = 0 ; i < cells.size() ; i++){
-                prayTime.addByIndex(i + 1, cells.get(i).asText());
+            for (HtmlTableCell cell : cells) {
+                prayTime.addByIndex(indexList.next(), cell.asText());
             }
 
             System.out.println(prayTime);
