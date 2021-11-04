@@ -22,6 +22,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -539,6 +540,10 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         int month = Integer.parseInt(new SimpleDateFormat("MM").format(now));
         int day = Integer.parseInt(new SimpleDateFormat("dd").format(now));
         return day + " " + Month.getNameByMonth(month).getName();
+    }
+
+    private String formatIfNotNull(LocalDateTime ldt){
+        return null;
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {

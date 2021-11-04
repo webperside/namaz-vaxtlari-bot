@@ -111,6 +111,8 @@ public class WebScrapServiceImpl implements WebScrapService {
                 prayTime.addByIndex(i + 1, cells.get(i).asText());
             }
 
+            System.out.println(prayTime);
+
             return prayTime;
 
         } catch (Exception e){
