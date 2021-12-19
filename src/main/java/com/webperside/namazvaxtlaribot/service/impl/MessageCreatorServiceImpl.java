@@ -22,6 +22,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -368,8 +369,8 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                         "\nİstifadənizə görə təşəkkürlər";
                 break;
             case DS_METBUAT_AZ:
-                msg = messageSource.getMessage("telegram.pray_time.ahlibeyt_az_and_metbuat_az",
-                        paramsForAhlibeytAzAndMetbuatAz(settlement, dto),
+                msg = messageSource.getMessage("telegram.pray_time.metbuat_az",
+                        paramsForMetbuatAz(settlement, dto),
                         Locale.getDefault());
                 break;
         }
@@ -511,7 +512,7 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         return ptd.changeByValue(settlement.getValue());
     }
 
-    private Object[] paramsForAhlibeytAzAndMetbuatAz(Settlement settlement, PrayTimeDto dto) {
+    private Object[] paramsForAhlibeytAz(Settlement settlement, PrayTimeDto dto) {
         return new Object[]{
                 settlement.getName(),
                 getDate(),
@@ -521,6 +522,21 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
                 formatter.format(dto.getZohr()),
                 formatter.format(dto.getEsr()),
                 formatter.format(dto.getGunBatir()),
+                formatter.format(dto.getMegrib()),
+                formatter.format(dto.getIsha()),
+                formatter.format(dto.getGeceYarisi()),
+                settlement.getCity().getSource().getName()
+        };
+    }
+
+    private Object[] paramsForMetbuatAz(Settlement settlement, PrayTimeDto dto) {
+        return new Object[]{
+                settlement.getName(),
+                getDate(),
+                formatter.format(dto.getSubh()),
+                formatter.format(dto.getGunChixir()),
+                formatter.format(dto.getZohr()),
+                formatter.format(dto.getEsr()),
                 formatter.format(dto.getMegrib()),
                 formatter.format(dto.getIsha()),
                 formatter.format(dto.getGeceYarisi()),
@@ -539,6 +555,10 @@ public class MessageCreatorServiceImpl implements MessageCreatorService {
         int month = Integer.parseInt(new SimpleDateFormat("MM").format(now));
         int day = Integer.parseInt(new SimpleDateFormat("dd").format(now));
         return day + " " + Month.getNameByMonth(month).getName();
+    }
+
+    private String formatIfNotNull(LocalDateTime ldt){
+        return null;
     }
 
     private <T> List<InlineKeyboardButton> createNavigator(Page<T> list, Params.Builder builder) {
