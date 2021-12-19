@@ -127,8 +127,7 @@
                 <a class="page-link"
                    th:if="${!actions.last}"
                    th:text="${actions.nextOrLastPageable().getPageNumber() + 1}"
-                   th:href="@{'/admin/monitor?p='+${actions.nextOrLastPageable().getPageNumber()}
-                   + '&sort=' + ${sortParam}}">
+                   th:href="@{'/admin/monitor?p='+${actions.nextOrLastPageable().getPageNumber()}}">
                 </a>
             </li>
             <li class="page-item" th:classappend="${actions.last} ? 'disabled'">
